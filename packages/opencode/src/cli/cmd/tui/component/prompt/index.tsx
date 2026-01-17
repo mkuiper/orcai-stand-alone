@@ -528,22 +528,22 @@ export function Prompt(props: PromptProps) {
     const currentMode = store.mode
     const variant = local.model.variant.current()
 
-    const trimmed = inputText.trim()
-    if (trimmed === "/v") {
+    const slash = inputText.trim()
+    if (slash === "/v") {
       command.trigger("voice.record")
       input.clear()
       setStore("prompt", { input: "", parts: [] })
       setStore("extmarkToPartIndex", new Map())
       return
     }
-    if (trimmed === "/tb") {
+    if (slash === "/tb") {
       command.trigger("voice.talkback.toggle")
       input.clear()
       setStore("prompt", { input: "", parts: [] })
       setStore("extmarkToPartIndex", new Map())
       return
     }
-    if (trimmed === "/va") {
+    if (slash === "/va") {
       command.trigger("voice.autosend.toggle")
       input.clear()
       setStore("prompt", { input: "", parts: [] })
