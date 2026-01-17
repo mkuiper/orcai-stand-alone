@@ -2,7 +2,19 @@ import { render, useKeyboard, useRenderer, useTerminalDimensions } from "@opentu
 import { Clipboard } from "@tui/util/clipboard"
 import { TextAttributes } from "@opentui/core"
 import { RouteProvider, useRoute } from "@tui/context/route"
-import { Switch, Match, createEffect, untrack, ErrorBoundary, createSignal, onMount, batch, Show, on } from "solid-js"
+import {
+  Switch,
+  Match,
+  createEffect,
+  untrack,
+  ErrorBoundary,
+  createSignal,
+  onMount,
+  batch,
+  Show,
+  on,
+  createMemo,
+} from "solid-js"
 import { Installation } from "@/installation"
 import { Flag } from "@/flag/flag"
 import { DialogProvider, useDialog } from "@tui/ui/dialog"
@@ -36,6 +48,7 @@ import { ArgsProvider, useArgs, type Args } from "./context/args"
 import open from "open"
 import { writeHeapSnapshot } from "v8"
 import { PromptRefProvider, usePromptRef } from "./context/prompt"
+import { getVoiceConfig, play, speak, startRecording, stopRecording, transcribe } from "./util/voice"
 
 async function getTerminalBackgroundColor(): Promise<"dark" | "light"> {
   // can't set raw mode if not a TTY
@@ -206,9 +219,138 @@ function App() {
     renderer.clearSelection()
   }
   const [terminalTitleEnabled, setTerminalTitleEnabled] = createSignal(kv.get("terminal_title_enabled", true))
+  const [voiceTalkback, setVoiceTalkback] = createSignal(
+    kv.get("voice_talkback", sync.data.config.tui?.voice?.talkback ?? true),
+  )
+  const [voiceAutoSend, setVoiceAutoSend] = createSignal(
+    kv.get("voice_autosend", sync.data.config.tui?.voice?.auto_send ?? true),
+  )
+  const [voiceState, setVoiceState] = createSignal<{ proc?: Bun.Subprocess; file?: string }>({})
+  const [voiceSpeaking, setVoiceSpeaking] = createSignal(false)
+  const [voiceSpoken, setVoiceSpoken] = createSignal<Set<string>>(new Set())
+
+  const voiceConfig = createMemo(() => {
+    return getVoiceConfig({
+      enabled: sync.data.config.tui?.voice?.enabled ?? true,
+      autoSend: voiceAutoSend(),
+      talkback: voiceTalkback(),
+      voiceId: sync.data.config.tui?.voice?.voice_id,
+      modelId: sync.data.config.tui?.voice?.model_id,
+      outputFormat: sync.data.config.tui?.voice?.output_format,
+      sttModelId: sync.data.config.tui?.voice?.stt_model_id,
+    })
+  })
+
+  const voiceRecording = createMemo(() => !!voiceState().proc)
+
+  function rememberSpoken(id: string) {
+    setVoiceSpoken((prev) => {
+      const next = new Set(prev)
+      next.add(id)
+      return next
+    })
+  }
+
+  async function handleVoiceRecord() {
+    const cfg = voiceConfig()
+    if (!cfg.enabled) {
+      toast.show({ variant: "warning", message: "Voice is disabled in config." })
+      return
+    }
+
+    if (voiceRecording()) {
+      const state = voiceState()
+      setVoiceState({})
+      await stopRecording(state.proc)
+      if (!state.file) {
+        toast.show({ variant: "error", message: "Recording file missing." })
+        return
+      }
+      const result = await transcribe(state.file, cfg)
+      if (result.error) {
+        toast.show({ variant: "error", message: result.error })
+        return
+      }
+      const text = result.text?.trim()
+      if (!text) {
+        toast.show({ variant: "warning", message: "No transcript returned." })
+        return
+      }
+      const current = promptRef.current?.current
+      if (!current) {
+        toast.show({ variant: "error", message: "Prompt is not ready." })
+        return
+      }
+      const nextInput = current.input ? `${current.input}\n${text}` : text
+      promptRef.current?.set({ input: nextInput, parts: current.parts })
+      promptRef.current?.focus()
+      toast.show({ variant: "success", message: cfg.autoSend ? "Transcript sent." : "Transcript inserted." })
+      if (cfg.autoSend) promptRef.current?.submit()
+      return
+    }
+
+    const started = await startRecording()
+    if ("error" in started) {
+      toast.show({ variant: "error", message: started.error })
+      return
+    }
+    setVoiceState({ proc: started.proc, file: started.file })
+    toast.show({ variant: "info", message: "Recording... press again to stop." })
+  }
+
+  async function handleTalkback(messageID: string, text: string) {
+    const cfg = voiceConfig()
+    if (!cfg.enabled) return
+    if (!cfg.talkback) return
+    if (voiceSpeaking()) return
+    setVoiceSpeaking(true)
+    const result = await speak(text, cfg)
+    if (result.error) {
+      toast.show({ variant: "error", message: result.error })
+      setVoiceSpeaking(false)
+      return
+    }
+    const played = await play(result.file)
+    if (played.error) {
+      toast.show({ variant: "error", message: played.error })
+    }
+    setVoiceSpeaking(false)
+  }
 
   createEffect(() => {
     console.log(JSON.stringify(route.data))
+  })
+
+  createEffect(
+    on(
+      () => (route.data.type === "session" ? route.data.sessionID : ""),
+      () => {
+        setVoiceSpoken(new Set())
+      },
+    ),
+  )
+
+  createEffect(() => {
+    const cfg = voiceConfig()
+    if (!cfg.enabled) return
+    if (!cfg.talkback) return
+    if (voiceRecording()) return
+    if (voiceSpeaking()) return
+    if (route.data.type !== "session") return
+    const list = sync.data.message[route.data.sessionID] ?? []
+    const last = list.findLast((x) => x.role === "assistant" && x.time.completed)
+    if (!last) return
+    if (voiceSpoken().has(last.id)) return
+    const parts = sync.data.part[last.id] ?? []
+    const text = parts
+      .filter((p) => p.type === "text")
+      .map((p) => (p as { text: string }).text)
+      .join("\n")
+      .trim()
+    if (!text) return
+    const truncated = text.length > 4000 ? text.slice(0, 4000) + "…" : text
+    rememberSpoken(last.id)
+    void handleTalkback(last.id, truncated)
   })
 
   // Update terminal window title based on current route and session
@@ -420,6 +562,39 @@ function App() {
         dialog.replace(() => <DialogStatus />)
       },
       category: "System",
+    },
+    {
+      title: voiceRecording() ? "Stop voice input" : "Voice input (push-to-talk)",
+      keybind: "voice_record",
+      value: "voice.record",
+      onSelect: () => {
+        void handleVoiceRecord()
+      },
+      category: "Voice",
+    },
+    {
+      title: voiceTalkback() ? "Disable voice talk-back" : "Enable voice talk-back",
+      keybind: "voice_talkback_toggle",
+      value: "voice.talkback.toggle",
+      onSelect: (dialog) => {
+        const next = !voiceTalkback()
+        setVoiceTalkback(next)
+        kv.set("voice_talkback", next)
+        dialog.clear()
+      },
+      category: "Voice",
+    },
+    {
+      title: voiceAutoSend() ? "Disable voice auto-send" : "Enable voice auto-send",
+      keybind: "voice_autosend_toggle",
+      value: "voice.autosend.toggle",
+      onSelect: (dialog) => {
+        const next = !voiceAutoSend()
+        setVoiceAutoSend(next)
+        kv.set("voice_autosend", next)
+        dialog.clear()
+      },
+      category: "Voice",
     },
     {
       title: "Switch theme",

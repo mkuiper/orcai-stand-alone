@@ -772,6 +772,9 @@ export namespace Config {
       terminal_suspend: z.string().optional().default("ctrl+z").describe("Suspend terminal"),
       terminal_title_toggle: z.string().optional().default("none").describe("Toggle terminal title"),
       tips_toggle: z.string().optional().default("<leader>h").describe("Toggle tips on home screen"),
+      voice_record: z.string().optional().default("<leader>v").describe("Push-to-talk voice input"),
+      voice_talkback_toggle: z.string().optional().default("<leader>shift+v").describe("Toggle voice talk-back"),
+      voice_autosend_toggle: z.string().optional().default("none").describe("Toggle voice auto-send"),
     })
     .strict()
     .meta({
@@ -790,6 +793,18 @@ export namespace Config {
       .enum(["auto", "stacked"])
       .optional()
       .describe("Control diff rendering style: 'auto' adapts to terminal width, 'stacked' always shows single column"),
+    voice: z
+      .object({
+        enabled: z.boolean().optional().describe("Enable voice features in the TUI"),
+        auto_send: z.boolean().optional().describe("Auto-send transcript after voice input"),
+        talkback: z.boolean().optional().describe("Speak assistant responses aloud"),
+        voice_id: z.string().optional().describe("ElevenLabs voice ID for talk-back"),
+        model_id: z.string().optional().describe("ElevenLabs model ID for talk-back"),
+        output_format: z.string().optional().describe("ElevenLabs output format (e.g., mp3_44100_128)"),
+        stt_model_id: z.string().optional().describe("ElevenLabs STT model ID (e.g., scribe_v1)"),
+      })
+      .optional()
+      .describe("Voice settings"),
   })
 
   export const Server = z

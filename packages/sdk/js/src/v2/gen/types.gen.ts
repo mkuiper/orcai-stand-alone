@@ -1287,6 +1287,18 @@ export type KeybindsConfig = {
    * Toggle tips on home screen
    */
   tips_toggle?: string
+  /**
+   * Push-to-talk voice input
+   */
+  voice_record?: string
+  /**
+   * Toggle voice talk-back
+   */
+  voice_talkback_toggle?: string
+  /**
+   * Toggle voice auto-send
+   */
+  voice_autosend_toggle?: string
 }
 
 /**
@@ -1598,6 +1610,39 @@ export type Config = {
      * Control diff rendering style: 'auto' adapts to terminal width, 'stacked' always shows single column
      */
     diff_style?: "auto" | "stacked"
+    /**
+     * Voice settings
+     */
+    voice?: {
+      /**
+       * Enable voice features in the TUI
+       */
+      enabled?: boolean
+      /**
+       * Auto-send transcript after voice input
+       */
+      auto_send?: boolean
+      /**
+       * Speak assistant responses aloud
+       */
+      talkback?: boolean
+      /**
+       * ElevenLabs voice ID for talk-back
+       */
+      voice_id?: string
+      /**
+       * ElevenLabs model ID for talk-back
+       */
+      model_id?: string
+      /**
+       * ElevenLabs output format (e.g., mp3_44100_128)
+       */
+      output_format?: string
+      /**
+       * ElevenLabs STT model ID (e.g., scribe_v1)
+       */
+      stt_model_id?: string
+    }
   }
   server?: ServerConfig
   /**
