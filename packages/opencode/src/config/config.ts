@@ -678,7 +678,7 @@ export namespace Config {
       model_cycle_recent_reverse: z.string().optional().default("shift+f2").describe("Previous recently used model"),
       model_cycle_favorite: z.string().optional().default("none").describe("Next favorite model"),
       model_cycle_favorite_reverse: z.string().optional().default("none").describe("Previous favorite model"),
-      command_list: z.string().optional().default("ctrl+p").describe("List available commands"),
+      command_list: z.string().optional().default("f10").describe("List available commands"),
       agent_list: z.string().optional().default("<leader>a").describe("List agents"),
       agent_cycle: z.string().optional().default("tab").describe("Next agent"),
       agent_cycle_reverse: z.string().optional().default("shift+tab").describe("Previous agent"),
@@ -773,8 +773,8 @@ export namespace Config {
       terminal_title_toggle: z.string().optional().default("none").describe("Toggle terminal title"),
       tips_toggle: z.string().optional().default("<leader>h").describe("Toggle tips on home screen"),
       voice_record: z.string().optional().default("f8").describe("Push-to-talk voice input"),
-      voice_talkback_toggle: z.string().optional().default("shift+f8").describe("Toggle voice talk-back"),
-      voice_autosend_toggle: z.string().optional().default("none").describe("Toggle voice auto-send"),
+      voice_talkback_toggle: z.string().optional().default("f7").describe("Toggle voice talk-back"),
+      voice_autosend_toggle: z.string().optional().default("f9").describe("Toggle voice auto-send"),
     })
     .strict()
     .meta({
