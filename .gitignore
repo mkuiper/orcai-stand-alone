@@ -27,3 +27,9 @@ opencode-dev
 logs/
 *.bun-build
 .orcai-cache/
+.env.voice
+.opencode.toml
+packages/opencode/.env.voice
+test-config.ts
+test-keybind.ts
+test-voice-direct.ts
