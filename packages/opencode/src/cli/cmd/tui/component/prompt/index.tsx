@@ -528,6 +528,29 @@ export function Prompt(props: PromptProps) {
     const currentMode = store.mode
     const variant = local.model.variant.current()
 
+    const trimmed = inputText.trim()
+    if (trimmed === "/v") {
+      command.trigger("voice.record")
+      input.clear()
+      setStore("prompt", { input: "", parts: [] })
+      setStore("extmarkToPartIndex", new Map())
+      return
+    }
+    if (trimmed === "/tb") {
+      command.trigger("voice.talkback.toggle")
+      input.clear()
+      setStore("prompt", { input: "", parts: [] })
+      setStore("extmarkToPartIndex", new Map())
+      return
+    }
+    if (trimmed === "/va") {
+      command.trigger("voice.autosend.toggle")
+      input.clear()
+      setStore("prompt", { input: "", parts: [] })
+      setStore("extmarkToPartIndex", new Map())
+      return
+    }
+
     if (store.mode === "shell") {
       sdk.client.session.shell({
         sessionID,
@@ -776,6 +799,26 @@ export function Prompt(props: PromptProps) {
               onKeyDown={async (e) => {
                 if (props.disabled) {
                   e.preventDefault()
+                  return
+                }
+                // Handle voice keybindings - intercept before textarea consumes them
+                // DEBUG: Log all F-key presses
+                if (e.name?.startsWith("f")) {
+                  console.log("F-key pressed:", e.name, "voice_record match:", keybind.match("voice_record", e))
+                }
+                if (keybind.match("voice_record", e)) {
+                  e.preventDefault()
+                  command.trigger("voice.record")
+                  return
+                }
+                if (keybind.match("voice_talkback_toggle", e)) {
+                  e.preventDefault()
+                  command.trigger("voice.talkback.toggle")
+                  return
+                }
+                if (keybind.match("voice_autosend_toggle", e)) {
+                  e.preventDefault()
+                  command.trigger("voice.autosend.toggle")
                   return
                 }
                 // Handle clipboard paste (Ctrl+V) - check for images first on Windows

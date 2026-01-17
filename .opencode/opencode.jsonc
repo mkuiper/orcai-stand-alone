@@ -20,4 +20,9 @@
     "github-triage": false,
     "github-pr-search": false,
   },
+  "keybinds": {
+    "voice_record": "alt+v",
+    "voice_talkback_toggle": "alt+shift+v",
+    "voice_autosend_toggle": "alt+a"
+  }
 }
