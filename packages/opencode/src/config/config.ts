@@ -772,9 +772,9 @@ export namespace Config {
       terminal_suspend: z.string().optional().default("ctrl+z").describe("Suspend terminal"),
       terminal_title_toggle: z.string().optional().default("none").describe("Toggle terminal title"),
       tips_toggle: z.string().optional().default("<leader>h").describe("Toggle tips on home screen"),
-      voice_record: z.string().optional().default("f8").describe("Push-to-talk voice input"),
-      voice_talkback_toggle: z.string().optional().default("f7").describe("Toggle voice talk-back"),
-      voice_autosend_toggle: z.string().optional().default("f9").describe("Toggle voice auto-send"),
+      voice_record: z.string().optional().default("<leader>v").describe("Push-to-talk voice input"),
+      voice_talkback_toggle: z.string().optional().default("<leader>shift+v").describe("Toggle voice talk-back"),
+      voice_autosend_toggle: z.string().optional().default("<leader>a").describe("Toggle voice auto-send"),
     })
     .strict()
     .meta({
