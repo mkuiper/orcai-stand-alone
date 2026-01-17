@@ -1,0 +1,8 @@
+{
+  "repo": "git@github.com:mkuiper/orcai-stand-alone.git",
+  "branch": "dev",
+  "push": {
+    "enabled": true,
+    "env_token": "ORCAI_GITHUB_TOKEN"
+  }
+}

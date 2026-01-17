@@ -16,6 +16,7 @@
 - Owns the plan and overall correctness
 - Delegates to executor(s) with a bounded Task Brief
 - Enforces tests before merge
+- Can auto-push updates when configured
 
 ### Executor
 - Implements a single scoped task
@@ -42,3 +43,22 @@ Task Brief
 Environment variables:
 - `ORCAI_ELEVENLABS_API_KEY` (or `ELEVENLABS_API_KEY`)
 - `ORCAI_ELEVENLABS_VOICE_ID` (or `ELEVENLABS_VOICE_ID`)
+
+## Repo Control (Autonomous Updates)
+Configure a target repo and PAT for the Orchestrator in `.opencode/orchestrator.json`:
+
+```
+{
+  "repo": "git@github.com:OWNER/REPO.git",
+  "branch": "dev",
+  "push": {
+    "enabled": true,
+    "env_token": "ORCAI_GITHUB_TOKEN"
+  }
+}
+```
+
+Set the token in your shell (do not commit tokens):
+```
+export ORCAI_GITHUB_TOKEN=YOUR_PAT
+```

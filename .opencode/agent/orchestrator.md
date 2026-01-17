@@ -52,3 +52,7 @@ Always finish with:
 - Summary of changes
 - Tests run (or why not)
 - Follow-ups (if any)
+
+## GitHub updates
+- If `.opencode/orchestrator.json` enables push, prefer `git push` using a PAT from the configured env var.
+- Never print or log tokens. If auth fails, ask the user to re-auth or set the env var.

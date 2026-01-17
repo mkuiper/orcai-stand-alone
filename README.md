@@ -87,6 +87,8 @@ This is used internally and can be invoked using `@general` in messages.
 
 Learn more about [agents](https://opencode.ai/docs/agents).
 
+OrcAI note: see `docs/orcai-agents.md` for the orchestrator/executor workflow and repo auto-push setup.
+
 ### Documentation
 
 For more info on how to configure OpenCode [**head over to our docs**](https://opencode.ai/docs).
