@@ -67,12 +67,21 @@ export function Prompt(props: PromptProps) {
   const dialog = useDialog()
   const toast = useToast()
   const status = createMemo(() => sync.data.session_status?.[props.sessionID ?? ""] ?? { type: "idle" })
+  const voiceEnabled = createMemo(() => sync.data.config.tui?.voice?.enabled ?? true)
   const history = usePromptHistory()
   const stash = usePromptStash()
   const command = useCommandDialog()
   const renderer = useRenderer()
   const { theme, syntax } = useTheme()
   const kv = useKV()
+  const voiceRecording = createMemo(() => kv.get("voice_recording", false))
+  const voiceSpeaking = createMemo(() => kv.get("voice_speaking", false))
+  const voiceTalkback = createMemo(() => kv.get("voice_talkback", sync.data.config.tui?.voice?.talkback ?? true))
+  const voiceAutoSend = createMemo(() => kv.get("voice_autosend", sync.data.config.tui?.voice?.auto_send ?? true))
+  const showVoiceStatus = createMemo(
+    () =>
+      voiceEnabled() && (voiceRecording() || voiceSpeaking() || voiceTalkback() || voiceAutoSend()),
+  )
 
   function promptModelWarning() {
     toast.show({
@@ -1106,6 +1115,22 @@ export function Prompt(props: PromptProps) {
           </Show>
           <Show when={status().type !== "retry"}>
             <box gap={2} flexDirection="row">
+              <Show when={showVoiceStatus()}>
+                <box flexDirection="row" gap={1}>
+                  <Show when={voiceRecording()}>
+                    <text fg={theme.error}>REC</text>
+                  </Show>
+                  <Show when={voiceSpeaking()}>
+                    <text fg={theme.primary}>TALK</text>
+                  </Show>
+                  <Show when={voiceTalkback()}>
+                    <text fg={theme.textMuted}>TB</text>
+                  </Show>
+                  <Show when={voiceAutoSend()}>
+                    <text fg={theme.textMuted}>AUTO</text>
+                  </Show>
+                </box>
+              </Show>
               <Switch>
                 <Match when={store.mode === "normal"}>
                   <text fg={theme.text}>

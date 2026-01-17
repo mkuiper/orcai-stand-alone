@@ -243,6 +243,14 @@ function App() {
 
   const voiceRecording = createMemo(() => !!voiceState().proc)
 
+  createEffect(() => {
+    kv.set("voice_recording", voiceRecording())
+  })
+
+  createEffect(() => {
+    kv.set("voice_speaking", voiceSpeaking())
+  })
+
   function rememberSpoken(id: string) {
     setVoiceSpoken((prev) => {
       const next = new Set(prev)
