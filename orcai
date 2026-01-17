@@ -1,6 +1,43 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+root="${ORCAI_ROOT:-$script_dir}"
 
-exec bun run --cwd "$root/packages/opencode" --conditions=browser "$root/packages/opencode/src/index.ts" "$@"
+if [ ! -d "$root/packages/opencode" ]; then
+  if [ -d "$HOME/orcai/packages/opencode" ]; then
+    root="$HOME/orcai"
+  else
+    echo "Orcai repo not found. Set ORCAI_ROOT to your repo path." >&2
+    exit 2
+  fi
+fi
+
+if [ -z "${MODELS_DEV_API_JSON:-}" ]; then
+  cache_base="${XDG_CACHE_HOME:-$HOME/.cache}"
+  cache_dir="$cache_base/orcai"
+  if ! mkdir -p "$cache_dir" 2>/dev/null; then
+    cache_dir="$HOME/.cache/orcai"
+    if ! mkdir -p "$cache_dir" 2>/dev/null; then
+      cache_dir="$root/.orcai-cache"
+      mkdir -p "$cache_dir"
+    fi
+  fi
+  cache_file="$cache_dir/models.dev.json"
+  if [ ! -f "$cache_file" ]; then
+    printf "%s\n" "{}" >"$cache_file"
+  fi
+  export MODELS_DEV_API_JSON="$cache_file"
+  export OPENCODE_DISABLE_MODELS_FETCH="1"
+fi
+
+if command -v bun >/dev/null 2>&1; then
+  bun_cmd="bun"
+elif [ -x "$HOME/.bun/bin/bun" ]; then
+  bun_cmd="$HOME/.bun/bin/bun"
+else
+  echo "bun not found on PATH or at \$HOME/.bun/bin/bun" >&2
+  exit 127
+fi
+
+exec "$bun_cmd" run --cwd "$root/packages/opencode" --conditions=browser "$root/packages/opencode/src/index.ts" "$@"
