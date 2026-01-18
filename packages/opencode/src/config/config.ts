@@ -775,16 +775,6 @@ export namespace Config {
       voice_record: z.string().optional().default("<leader>v").describe("Push-to-talk voice input"),
       voice_talkback_toggle: z.string().optional().default("<leader>shift+v").describe("Toggle voice talk-back"),
       voice_autosend_toggle: z.string().optional().default("<leader>a").describe("Toggle voice auto-send"),
-      conversation_mode_toggle: z
-        .string()
-        .optional()
-        .default("<leader>m")
-        .describe("Toggle conversation mode"),
-      conversation_notes_toggle: z
-        .string()
-        .optional()
-        .default("<leader>shift+m")
-        .describe("Toggle conversation notes outside conversation mode"),
     })
     .strict()
     .meta({
@@ -815,15 +805,6 @@ export namespace Config {
       })
       .optional()
       .describe("Voice settings"),
-    conversation: z
-      .object({
-        enabled: z.boolean().optional().describe("Enable conversation mode by default"),
-        notes_always: z.boolean().optional().describe("Keep updating conversation notes outside conversation mode"),
-        auto_send: z.boolean().optional().describe("Force voice auto-send while in conversation mode"),
-        talkback: z.boolean().optional().describe("Force voice talk-back while in conversation mode"),
-      })
-      .optional()
-      .describe("Conversation mode settings"),
   })
 
   export const Server = z
