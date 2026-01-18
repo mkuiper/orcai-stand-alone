@@ -49,6 +49,7 @@ import open from "open"
 import { writeHeapSnapshot } from "v8"
 import { PromptRefProvider, usePromptRef } from "./context/prompt"
 import { getVoiceConfig, play, speak, startRecording, stopRecording, transcribe } from "./util/voice"
+import path from "path"
 
 async function getTerminalBackgroundColor(): Promise<"dark" | "light"> {
   // can't set raw mode if not a TTY
@@ -225,9 +226,16 @@ function App() {
   const [voiceAutoSend, setVoiceAutoSend] = createSignal(
     kv.get("voice_autosend", sync.data.config.tui?.voice?.auto_send ?? true),
   )
+  const [conversationMode, setConversationMode] = createSignal(
+    kv.get("conversation_mode", sync.data.config.tui?.conversation?.enabled ?? false),
+  )
+  const [conversationNotesAlways, setConversationNotesAlways] = createSignal(
+    kv.get("conversation_notes_always", sync.data.config.tui?.conversation?.notes_always ?? false),
+  )
   const [voiceState, setVoiceState] = createSignal<{ proc?: Bun.Subprocess; file?: string }>({})
   const [voiceSpeaking, setVoiceSpeaking] = createSignal(false)
   const [voiceSpoken, setVoiceSpoken] = createSignal<Set<string>>(new Set())
+  const [lastNotes, setLastNotes] = createSignal("")
 
   const voiceConfig = createMemo(() => {
     return getVoiceConfig({
@@ -250,6 +258,67 @@ function App() {
   createEffect(() => {
     kv.set("voice_speaking", voiceSpeaking())
   })
+
+  function applyConversationMode(next: boolean) {
+    setConversationMode(next)
+    kv.set("conversation_mode", next)
+    const conv = sync.data.config.tui?.conversation
+    if (next) {
+      kv.set("voice_autosend_prev", voiceAutoSend())
+      kv.set("voice_talkback_prev", voiceTalkback())
+      const autoSend = conv?.auto_send ?? true
+      const talkback = conv?.talkback ?? true
+      setVoiceAutoSend(autoSend)
+      kv.set("voice_autosend", autoSend)
+      setVoiceTalkback(talkback)
+      kv.set("voice_talkback", talkback)
+      return
+    }
+    const prevAuto = kv.get("voice_autosend_prev", voiceAutoSend())
+    const prevTalk = kv.get("voice_talkback_prev", voiceTalkback())
+    setVoiceAutoSend(prevAuto)
+    kv.set("voice_autosend", prevAuto)
+    setVoiceTalkback(prevTalk)
+    kv.set("voice_talkback", prevTalk)
+  }
+
+  function toggleConversationNotes(always?: boolean) {
+    const next = always ?? !conversationNotesAlways()
+    setConversationNotesAlways(next)
+    kv.set("conversation_notes_always", next)
+  }
+
+  function buildNotesText(sessionID: string) {
+    const messages = sync.data.message[sessionID] ?? []
+    const userMessages = messages.filter((msg) => msg.role === "user")
+    if (userMessages.length === 0) return ""
+    const notes: string[] = []
+    notes.push("# Conversation Notes")
+    notes.push("")
+    notes.push(`Updated: ${new Date().toLocaleString()}`)
+    notes.push("")
+    notes.push("## Requirements / Goals")
+    const items: string[] = []
+    for (const msg of userMessages.slice(-12)) {
+      const parts = sync.data.part[msg.id] ?? []
+      const text = parts
+        .filter((p) => p.type === "text")
+        .map((p) => (p as { text: string }).text)
+        .join("\n")
+        .trim()
+      if (!text) continue
+      const line = text.split("\n").map((t) => t.trim()).find((t) => t.length > 0) ?? ""
+      if (!line) continue
+      const trimmed = line.length > 140 ? line.slice(0, 140) + "…" : line
+      if (items.includes(trimmed)) continue
+      items.push(trimmed)
+    }
+    if (items.length === 0) return ""
+    for (const item of items) {
+      notes.push(`- ${item}`)
+    }
+    return notes.join("\n")
+  }
 
   function rememberSpoken(id: string) {
     setVoiceSpoken((prev) => {
@@ -359,6 +428,22 @@ function App() {
     const truncated = text.length > 4000 ? text.slice(0, 4000) + "…" : text
     rememberSpoken(last.id)
     void handleTalkback(last.id, truncated)
+  })
+
+  createEffect(() => {
+    const sessionActive = route.data.type === "session"
+    if (!sessionActive) return
+    const shouldUpdate = conversationMode() || conversationNotesAlways()
+    if (!shouldUpdate) return
+    const sessionID = route.data.sessionID
+    const notes = buildNotesText(sessionID)
+    if (!notes) return
+    if (notes === lastNotes()) return
+    setLastNotes(notes)
+    kv.set("conversation_notes", notes)
+    const worktree = sync.data.path.worktree || process.cwd()
+    const filepath = path.join(worktree, "spec.md")
+    Bun.write(filepath, notes).catch(() => {})
   })
 
   // Update terminal window title based on current route and session
@@ -505,6 +590,26 @@ function App() {
       category: "Agent",
       onSelect: () => {
         local.model.cycleFavorite(-1)
+      },
+    },
+    {
+      title: conversationMode() ? "Disable conversation mode" : "Enable conversation mode",
+      value: "conversation.mode.toggle",
+      keybind: "conversation_mode_toggle",
+      category: "Conversation",
+      onSelect: (dialog) => {
+        applyConversationMode(!conversationMode())
+        dialog.clear()
+      },
+    },
+    {
+      title: conversationNotesAlways() ? "Disable conversation notes" : "Enable conversation notes",
+      value: "conversation.notes.toggle",
+      keybind: "conversation_notes_toggle",
+      category: "Conversation",
+      onSelect: (dialog) => {
+        toggleConversationNotes()
+        dialog.clear()
       },
     },
     {

@@ -62,6 +62,12 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
 
   const directory = useDirectory()
   const kv = useKV()
+  const conversationMode = createMemo(() => kv.get("conversation_mode", false))
+  const conversationNotes = createMemo(() => kv.get("conversation_notes_always", false))
+  const conversationNotesText = createMemo(() => kv.get("conversation_notes", ""))
+  const showConversationNotes = createMemo(
+    () => (conversationMode() || conversationNotes()) && conversationNotesText().length > 0,
+  )
 
   const hasProviders = createMemo(() =>
     sync.data.provider.some((x) => x.id !== "opencode" || Object.values(x.models).some((y) => y.cost?.input !== 0)),
@@ -81,6 +87,16 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
       >
         <scrollbox flexGrow={1}>
           <box flexShrink={0} gap={1} paddingRight={1}>
+            <Show when={showConversationNotes()}>
+              <box>
+                <text fg={theme.text}>
+                  <b>Conversation Notes</b>
+                </text>
+                <text fg={theme.textMuted} wrapMode="word">
+                  {conversationNotesText()}
+                </text>
+              </box>
+            </Show>
             <box paddingRight={1}>
               <text fg={theme.text}>
                 <b>{session().title}</b>

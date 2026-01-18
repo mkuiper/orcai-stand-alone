@@ -974,6 +974,14 @@ export type KeybindsConfig = {
    * Toggle voice auto-send
    */
   voice_autosend_toggle?: string
+  /**
+   * Toggle conversation mode
+   */
+  conversation_mode_toggle?: string
+  /**
+   * Toggle conversation notes outside conversation mode
+   */
+  conversation_notes_toggle?: string
 }
 
 export type AgentConfig = {
@@ -1243,6 +1251,27 @@ export type Config = {
        * ElevenLabs STT model ID (e.g., scribe_v1)
        */
       stt_model_id?: string
+    }
+    /**
+     * Conversation mode settings
+     */
+    conversation?: {
+      /**
+       * Enable conversation mode by default
+       */
+      enabled?: boolean
+      /**
+       * Keep updating conversation notes outside conversation mode
+       */
+      notes_always?: boolean
+      /**
+       * Force voice auto-send while in conversation mode
+       */
+      auto_send?: boolean
+      /**
+       * Force voice talk-back while in conversation mode
+       */
+      talkback?: boolean
     }
   }
   /**

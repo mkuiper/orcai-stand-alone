@@ -78,10 +78,13 @@ export function Prompt(props: PromptProps) {
   const voiceSpeaking = createMemo(() => kv.get("voice_speaking", false))
   const voiceTalkback = createMemo(() => kv.get("voice_talkback", sync.data.config.tui?.voice?.talkback ?? true))
   const voiceAutoSend = createMemo(() => kv.get("voice_autosend", sync.data.config.tui?.voice?.auto_send ?? true))
+  const conversationMode = createMemo(() => kv.get("conversation_mode", false))
+  const conversationNotes = createMemo(() => kv.get("conversation_notes_always", false))
   const showVoiceStatus = createMemo(
     () =>
       voiceEnabled() && (voiceRecording() || voiceSpeaking() || voiceTalkback() || voiceAutoSend()),
   )
+  const showConversationStatus = createMemo(() => conversationMode() || conversationNotes())
 
   function promptModelWarning() {
     toast.show({
@@ -559,6 +562,20 @@ export function Prompt(props: PromptProps) {
       setStore("extmarkToPartIndex", new Map())
       return
     }
+    if (slash === "/cm") {
+      command.trigger("conversation.mode.toggle")
+      input.clear()
+      setStore("prompt", { input: "", parts: [] })
+      setStore("extmarkToPartIndex", new Map())
+      return
+    }
+    if (slash === "/notes") {
+      command.trigger("conversation.notes.toggle")
+      input.clear()
+      setStore("prompt", { input: "", parts: [] })
+      setStore("extmarkToPartIndex", new Map())
+      return
+    }
 
     if (store.mode === "shell") {
       sdk.client.session.shell({
@@ -828,6 +845,16 @@ export function Prompt(props: PromptProps) {
                 if (keybind.match("voice_autosend_toggle", e)) {
                   e.preventDefault()
                   command.trigger("voice.autosend.toggle")
+                  return
+                }
+                if (keybind.match("conversation_mode_toggle", e)) {
+                  e.preventDefault()
+                  command.trigger("conversation.mode.toggle")
+                  return
+                }
+                if (keybind.match("conversation_notes_toggle", e)) {
+                  e.preventDefault()
+                  command.trigger("conversation.notes.toggle")
                   return
                 }
                 // Handle clipboard paste (Ctrl+V) - check for images first on Windows
@@ -1115,6 +1142,16 @@ export function Prompt(props: PromptProps) {
           </Show>
           <Show when={status().type !== "retry"}>
             <box gap={2} flexDirection="row">
+              <Show when={showConversationStatus()}>
+                <box flexDirection="row" gap={1}>
+                  <Show when={conversationMode()}>
+                    <text fg={theme.success}>CONV</text>
+                  </Show>
+                  <Show when={conversationNotes()}>
+                    <text fg={theme.textMuted}>NOTES</text>
+                  </Show>
+                </box>
+              </Show>
               <Show when={showVoiceStatus()}>
                 <box flexDirection="row" gap={1}>
                   <Show when={voiceRecording()}>
