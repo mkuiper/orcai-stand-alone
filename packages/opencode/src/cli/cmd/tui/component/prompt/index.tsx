@@ -1157,7 +1157,8 @@ export function Prompt(props: PromptProps) {
                   </Show>
                   <Show when={voiceProfiles().length > 0}>
                     <text fg={theme.textMuted}>
-                      V{Math.min(voiceProfileIndex() + 1, voiceProfiles().length)}
+                      {voiceProfiles()[Math.min(voiceProfileIndex(), voiceProfiles().length - 1)]?.name ??
+                        `Profile ${Math.min(voiceProfileIndex() + 1, voiceProfiles().length)}`}
                     </text>
                   </Show>
                 </box>
