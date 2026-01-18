@@ -974,6 +974,14 @@ export type KeybindsConfig = {
    * Toggle voice auto-send
    */
   voice_autosend_toggle?: string
+  /**
+   * Stop voice talk-back
+   */
+  voice_talkback_stop?: string
+  /**
+   * Cycle voice profile
+   */
+  voice_profile_cycle?: string
 }
 
 export type AgentConfig = {
@@ -1243,6 +1251,27 @@ export type Config = {
        * ElevenLabs STT model ID (e.g., scribe_v1)
        */
       stt_model_id?: string
+      /**
+       * Named voice profiles to cycle through
+       */
+      profiles?: Array<{
+        /**
+         * Profile display name
+         */
+        name: string
+        /**
+         * ElevenLabs voice ID for talk-back
+         */
+        voice_id?: string
+        /**
+         * ElevenLabs model ID for talk-back
+         */
+        model_id?: string
+        /**
+         * ElevenLabs output format
+         */
+        output_format?: string
+      }>
     }
   }
   /**

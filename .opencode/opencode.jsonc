@@ -23,6 +23,8 @@
   "keybinds": {
     "voice_record": "alt+v",
     "voice_talkback_toggle": "alt+shift+v",
-    "voice_autosend_toggle": "alt+a"
+    "voice_autosend_toggle": "alt+a",
+    "voice_talkback_stop": "alt+s",
+    "voice_profile_cycle": "alt+p"
   }
 }

@@ -78,6 +78,8 @@ export function Prompt(props: PromptProps) {
   const voiceSpeaking = createMemo(() => kv.get("voice_speaking", false))
   const voiceTalkback = createMemo(() => kv.get("voice_talkback", sync.data.config.tui?.voice?.talkback ?? true))
   const voiceAutoSend = createMemo(() => kv.get("voice_autosend", sync.data.config.tui?.voice?.auto_send ?? true))
+  const voiceProfileIndex = createMemo(() => kv.get("voice_profile_index", 0))
+  const voiceProfiles = createMemo(() => sync.data.config.tui?.voice?.profiles ?? [])
   const showVoiceStatus = createMemo(
     () =>
       voiceEnabled() && (voiceRecording() || voiceSpeaking() || voiceTalkback() || voiceAutoSend()),
@@ -559,6 +561,20 @@ export function Prompt(props: PromptProps) {
       setStore("extmarkToPartIndex", new Map())
       return
     }
+    if (slash === "/vs") {
+      command.trigger("voice.talkback.stop")
+      input.clear()
+      setStore("prompt", { input: "", parts: [] })
+      setStore("extmarkToPartIndex", new Map())
+      return
+    }
+    if (slash === "/vp") {
+      command.trigger("voice.profile.cycle")
+      input.clear()
+      setStore("prompt", { input: "", parts: [] })
+      setStore("extmarkToPartIndex", new Map())
+      return
+    }
 
     if (store.mode === "shell") {
       sdk.client.session.shell({
@@ -828,6 +844,16 @@ export function Prompt(props: PromptProps) {
                 if (keybind.match("voice_autosend_toggle", e)) {
                   e.preventDefault()
                   command.trigger("voice.autosend.toggle")
+                  return
+                }
+                if (keybind.match("voice_talkback_stop", e)) {
+                  e.preventDefault()
+                  command.trigger("voice.talkback.stop")
+                  return
+                }
+                if (keybind.match("voice_profile_cycle", e)) {
+                  e.preventDefault()
+                  command.trigger("voice.profile.cycle")
                   return
                 }
                 // Handle clipboard paste (Ctrl+V) - check for images first on Windows
@@ -1128,6 +1154,11 @@ export function Prompt(props: PromptProps) {
                   </Show>
                   <Show when={voiceAutoSend()}>
                     <text fg={theme.textMuted}>AUTO</text>
+                  </Show>
+                  <Show when={voiceProfiles().length > 0}>
+                    <text fg={theme.textMuted}>
+                      V{Math.min(voiceProfileIndex() + 1, voiceProfiles().length)}
+                    </text>
                   </Show>
                 </box>
               </Show>

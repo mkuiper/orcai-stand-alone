@@ -170,6 +170,11 @@ export async function play(file: string) {
     stdout: "ignore",
     stderr: "ignore",
   })
+  return { proc }
+}
+
+export async function stopPlayback(proc?: Bun.Subprocess) {
+  if (!proc) return
+  proc.kill("SIGINT")
   await proc.exited
-  return {}
 }

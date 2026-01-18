@@ -775,6 +775,8 @@ export namespace Config {
       voice_record: z.string().optional().default("<leader>v").describe("Push-to-talk voice input"),
       voice_talkback_toggle: z.string().optional().default("<leader>shift+v").describe("Toggle voice talk-back"),
       voice_autosend_toggle: z.string().optional().default("<leader>a").describe("Toggle voice auto-send"),
+      voice_talkback_stop: z.string().optional().default("<leader>shift+s").describe("Stop voice talk-back"),
+      voice_profile_cycle: z.string().optional().default("<leader>p").describe("Cycle voice profile"),
     })
     .strict()
     .meta({
@@ -802,6 +804,17 @@ export namespace Config {
         model_id: z.string().optional().describe("ElevenLabs model ID for talk-back"),
         output_format: z.string().optional().describe("ElevenLabs output format (e.g., mp3_44100_128)"),
         stt_model_id: z.string().optional().describe("ElevenLabs STT model ID (e.g., scribe_v1)"),
+        profiles: z
+          .array(
+            z.object({
+              name: z.string().describe("Profile display name"),
+              voice_id: z.string().optional().describe("ElevenLabs voice ID for talk-back"),
+              model_id: z.string().optional().describe("ElevenLabs model ID for talk-back"),
+              output_format: z.string().optional().describe("ElevenLabs output format"),
+            }),
+          )
+          .optional()
+          .describe("Named voice profiles to cycle through"),
       })
       .optional()
       .describe("Voice settings"),

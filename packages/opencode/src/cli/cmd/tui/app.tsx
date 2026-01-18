@@ -48,7 +48,7 @@ import { ArgsProvider, useArgs, type Args } from "./context/args"
 import open from "open"
 import { writeHeapSnapshot } from "v8"
 import { PromptRefProvider, usePromptRef } from "./context/prompt"
-import { getVoiceConfig, play, speak, startRecording, stopRecording, transcribe } from "./util/voice"
+import { getVoiceConfig, play, speak, startRecording, stopPlayback, stopRecording, transcribe } from "./util/voice"
 
 async function getTerminalBackgroundColor(): Promise<"dark" | "light"> {
   // can't set raw mode if not a TTY
@@ -225,18 +225,29 @@ function App() {
   const [voiceAutoSend, setVoiceAutoSend] = createSignal(
     kv.get("voice_autosend", sync.data.config.tui?.voice?.auto_send ?? true),
   )
+  const [voiceProfileIndex, setVoiceProfileIndex] = createSignal(kv.get("voice_profile_index", 0))
   const [voiceState, setVoiceState] = createSignal<{ proc?: Bun.Subprocess; file?: string }>({})
+  const [voicePlayback, setVoicePlayback] = createSignal<Bun.Subprocess | undefined>(undefined)
   const [voiceSpeaking, setVoiceSpeaking] = createSignal(false)
   const [voiceSpoken, setVoiceSpoken] = createSignal<Set<string>>(new Set())
 
+  const voiceProfiles = createMemo(() => sync.data.config.tui?.voice?.profiles ?? [])
+  const activeVoiceProfile = createMemo(() => {
+    const profiles = voiceProfiles()
+    if (profiles.length === 0) return
+    const index = Math.max(0, Math.min(voiceProfileIndex(), profiles.length - 1))
+    return profiles[index]
+  })
+
   const voiceConfig = createMemo(() => {
+    const profile = activeVoiceProfile()
     return getVoiceConfig({
       enabled: sync.data.config.tui?.voice?.enabled ?? true,
       autoSend: voiceAutoSend(),
       talkback: voiceTalkback(),
-      voiceId: sync.data.config.tui?.voice?.voice_id,
-      modelId: sync.data.config.tui?.voice?.model_id,
-      outputFormat: sync.data.config.tui?.voice?.output_format,
+      voiceId: profile?.voice_id ?? sync.data.config.tui?.voice?.voice_id,
+      modelId: profile?.model_id ?? sync.data.config.tui?.voice?.model_id,
+      outputFormat: profile?.output_format ?? sync.data.config.tui?.voice?.output_format,
       sttModelId: sync.data.config.tui?.voice?.stt_model_id,
     })
   })
@@ -250,6 +261,18 @@ function App() {
   createEffect(() => {
     kv.set("voice_speaking", voiceSpeaking())
   })
+
+  createEffect(() => {
+    kv.set("voice_profile_index", voiceProfileIndex())
+  })
+
+  async function stopTalkback() {
+    if (!voiceSpeaking()) return
+    const proc = voicePlayback()
+    setVoicePlayback(undefined)
+    setVoiceSpeaking(false)
+    await stopPlayback(proc)
+  }
 
   function rememberSpoken(id: string) {
     setVoiceSpoken((prev) => {
@@ -321,8 +344,13 @@ function App() {
     const played = await play(result.file)
     if (played.error) {
       toast.show({ variant: "error", message: played.error })
+      setVoiceSpeaking(false)
+      return
     }
+    setVoicePlayback(played.proc)
+    await played.proc?.exited
     setVoiceSpeaking(false)
+    setVoicePlayback(undefined)
   }
 
   createEffect(() => {
@@ -588,9 +616,21 @@ function App() {
         const next = !voiceTalkback()
         setVoiceTalkback(next)
         kv.set("voice_talkback", next)
+        if (!next) void stopTalkback()
         dialog.clear()
       },
       category: "Voice",
+    },
+    {
+      title: "Stop voice talk-back",
+      keybind: "voice_talkback_stop",
+      value: "voice.talkback.stop",
+      onSelect: (dialog) => {
+        void stopTalkback()
+        dialog.clear()
+      },
+      category: "Voice",
+      disabled: !voiceSpeaking(),
     },
     {
       title: voiceAutoSend() ? "Disable voice auto-send" : "Enable voice auto-send",
@@ -603,6 +643,22 @@ function App() {
         dialog.clear()
       },
       category: "Voice",
+    },
+    {
+      title: "Cycle voice profile",
+      keybind: "voice_profile_cycle",
+      value: "voice.profile.cycle",
+      onSelect: (dialog) => {
+        const profiles = voiceProfiles()
+        if (profiles.length === 0) return
+        const next = (voiceProfileIndex() + 1) % profiles.length
+        setVoiceProfileIndex(next)
+        kv.set("voice_profile_index", next)
+        toast.show({ message: `Voice: ${profiles[next]?.name ?? `Profile ${next + 1}`}` })
+        dialog.clear()
+      },
+      category: "Voice",
+      disabled: voiceProfiles().length === 0,
     },
     {
       title: "Switch theme",
