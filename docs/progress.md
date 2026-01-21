@@ -11,6 +11,7 @@
 - Updated splash/logo to Orcai
 - Added orchestrator repo control docs
 - Added research workflow spec and dynamic doc template
+- Added minimal research job config format
 
 ## Known gaps
 - No consolidated Orcai vs opencode doc
@@ -20,4 +21,4 @@
 ## Next actions
 - Align keybind guidance per terminal
 - Create curated catalogs for agents/skills/tools
-- Draft a minimal research job config format
+- Add a starter dynamic document example
