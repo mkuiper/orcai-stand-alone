@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ -z "${BIO_MCP_BWA_DIR:-}" ]]; then
+  echo "BIO_MCP_BWA_DIR is not set."
+  echo "Set BIO_MCP_BWA_DIR to the path of your bio-mcp-bwa repo."
+  exit 1
+fi
+
+cd "$BIO_MCP_BWA_DIR"
+exec python -m src.server
