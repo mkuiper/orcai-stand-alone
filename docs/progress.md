@@ -17,6 +17,7 @@
 - Added dynamic changelog and research run summary template
 - Filled in a sample research run summary
 - Added dynamic docs README
+- Added AI tooling landscape dynamic doc template
 
 ## Known gaps
 - No consolidated Orcai vs opencode doc
