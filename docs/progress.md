@@ -15,6 +15,8 @@
 - Added dynamic doc example, citation rules, and runner spec
 - Piloted first research update for tools and industry (last 12 months)
 - Added dynamic changelog and research run summary template
+- Filled in a sample research run summary
+- Added dynamic docs README
 
 ## Known gaps
 - No consolidated Orcai vs opencode doc
