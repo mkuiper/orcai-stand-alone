@@ -45,6 +45,14 @@ This document defines how Orcai runs research jobs and updates dynamic documents
 - Manual runs are allowed at any time.
 - Scheduled runs should be defined per document (monthly/quarterly).
 
+## How to run a research job
+1. Choose the job from `.opencode/research-jobs.md`.
+2. Open the target dynamic document and note stale sections.
+3. Delegate research tasks per section with citations required.
+4. Verify sources and apply updates.
+5. Add a changelog entry in `docs/dynamic/changelog.md`.
+6. Record the run in `docs/research-run-summary.md`.
+
 ## Minimal job config (proposal)
 ```
 name: ai-chem-synthesis
