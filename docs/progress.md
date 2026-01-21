@@ -12,6 +12,7 @@
 - Added orchestrator repo control docs
 - Added research workflow spec and dynamic doc template
 - Added minimal research job config format
+- Added dynamic doc example, citation rules, and runner spec
 
 ## Known gaps
 - No consolidated Orcai vs opencode doc
@@ -21,4 +22,4 @@
 ## Next actions
 - Align keybind guidance per terminal
 - Create curated catalogs for agents/skills/tools
-- Add a starter dynamic document example
+- Pilot a first research run and refine the template
