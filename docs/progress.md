@@ -13,6 +13,7 @@
 - Added research workflow spec and dynamic doc template
 - Added minimal research job config format
 - Added dynamic doc example, citation rules, and runner spec
+- Piloted first research update for tools and industry (last 12 months)
 
 ## Known gaps
 - No consolidated Orcai vs opencode doc
