@@ -18,6 +18,8 @@
 - Filled in a sample research run summary
 - Added dynamic docs README
 - Added AI tooling landscape dynamic doc template
+- Added AI tooling landscape dynamic doc baseline
+- Added cadence guidance to research workflows
 
 ## Known gaps
 - No consolidated Orcai vs opencode doc
