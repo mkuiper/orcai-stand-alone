@@ -700,6 +700,16 @@ function App() {
       value: "webui.open",
       onSelect: async (dialog) => {
         try {
+          if (sdk.url === "http://opencode.internal") {
+            toast.show({
+              message: "WebUI requires HTTP server. Start with: orcai --port 3000",
+              variant: "warning",
+              duration: 6000,
+            })
+            await Clipboard.copy("orcai --port 3000").catch(() => {})
+            dialog.clear()
+            return
+          }
           await open(sdk.url)
           dialog.clear()
           return
