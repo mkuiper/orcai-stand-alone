@@ -16,3 +16,6 @@ Skill instructions go here.
 ```
 
 3. Keep the skill focused. Avoid broad, multi-topic instructions.
+
+## Example
+- `.opencode/skill/mcp-setup/SKILL.md` for configuring MCP servers.

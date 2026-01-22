@@ -69,6 +69,11 @@ orcai mcp list
 ```
 You should see each configured MCP server and its status (connected/failed/needs auth).
 
+## Troubleshooting
+- **Auth required**: run `orcai mcp auth <name>` and complete the OAuth flow.
+- **Timeouts**: increase `timeout` in the MCP config for the server.
+- **Local server failed**: run the server command directly to view stderr.
+
 ## References
 - https://github.com/mcp/github/github-mcp-server
 - https://github.com/bio-mcp/bio-mcp-blast
