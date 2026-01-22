@@ -45,6 +45,11 @@
       "type": "local",
       "command": ["uniprot-mcp"],
       "enabled": false
+    },
+    "tooluniverse": {
+      "type": "local",
+      "command": ["tooluniverse-mcp"],
+      "enabled": false
     }
   },
   "tools": {

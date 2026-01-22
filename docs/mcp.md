@@ -62,6 +62,24 @@ Then enable in `.opencode/opencode.jsonc`:
 }
 ```
 
+## ToolUniverse MCP (local)
+ToolUniverse provides a large catalog of real-world tools and APIs exposed through a unified protocol.
+
+Install and run the MCP server:
+```
+pip install tooluniverse
+tooluniverse-mcp
+```
+
+Then enable in `.opencode/opencode.jsonc`:
+```
+"tooluniverse": {
+  "type": "local",
+  "command": ["tooluniverse-mcp"],
+  "enabled": true
+}
+```
+
 ## Verify MCP status
 Use the CLI to check connections:
 ```
@@ -79,3 +97,4 @@ You should see each configured MCP server and its status (connected/failed/needs
 - https://github.com/bio-mcp/bio-mcp-blast
 - https://mcpservers.org/servers/bio-mcp/bio-mcp-bwa
 - https://glama.ai/mcp/servers/%40josefdc/Uniprot-MCP
+- https://github.com/mims-harvard/ToolUniverse
