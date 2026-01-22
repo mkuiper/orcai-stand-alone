@@ -26,6 +26,7 @@
 - Captured Ralph-loop mode as a planned feature
 - Added Ralph Loop docs and a PRD JSON template
 - Added Ralph Loop CLI draft and progress template
+- Implemented /ralph-loop single-iteration command
 
 ## Known gaps
 - No consolidated Orcai vs opencode doc

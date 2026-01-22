@@ -698,9 +698,21 @@ function App() {
     {
       title: "Open WebUI",
       value: "webui.open",
-      onSelect: () => {
-        open(sdk.url).catch(() => {})
-        dialog.clear()
+      onSelect: async (dialog) => {
+        try {
+          await open(sdk.url)
+          dialog.clear()
+          return
+        } catch {
+          await Clipboard.copy(sdk.url)
+            .then(() => {
+              toast.show({ message: `WebUI URL copied: ${sdk.url}`, variant: "info" })
+            })
+            .catch(() => {
+              toast.show({ message: `Unable to open WebUI. URL: ${sdk.url}`, variant: "error" })
+            })
+          dialog.clear()
+        }
       },
       category: "System",
     },

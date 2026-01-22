@@ -23,4 +23,5 @@ This is a proposed interface for running Ralph Loop from Orcai.
 - Require tests before marking a story complete.
 
 ## Status
-- Documentation-only; command not yet implemented.
+- Implemented as a single-iteration slash command in `.opencode/command/ralph-loop.md`.
+- Rerun `/ralph-loop` to continue to the next story.
