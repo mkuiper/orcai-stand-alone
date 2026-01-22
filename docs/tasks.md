@@ -15,6 +15,7 @@ This is the actionable backlog. Keep items small and outcome-focused.
 - Add repo control safety checks and failure reporting
 - Prototype a Ralph-style loop mode (iterative stop-hook loop)
 - Add Ralph Loop docs and templates
+- Implement /ralph-loop command
 
 ## Later
 - Add real-time research sweep runner with summaries

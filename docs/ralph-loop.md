@@ -39,5 +39,9 @@ Each iteration is a fresh run. Memory persists via:
 /ralph-loop "<prompt>" --max-iterations 20 --completion-promise "COMPLETE"
 ```
 
+## Notes on /commands
+- Orcai already supports slash commands; Ralph Loop would be implemented as a new command.
+- A stop-hook loop (like Claude’s plugin) is also possible, but the current plan is to run it as a command.
+
 ## Notes
 - This is a doc-only proposal. Implementation is tracked in `docs/tasks.md`.
