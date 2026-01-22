@@ -24,6 +24,7 @@
 - Added MCP status verification note and skills template
 - Added MCP troubleshooting and a sample mcp-setup skill
 - Captured Ralph-loop mode as a planned feature
+- Added Ralph Loop docs and a PRD JSON template
 
 ## Known gaps
 - No consolidated Orcai vs opencode doc

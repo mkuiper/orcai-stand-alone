@@ -1,0 +1,17 @@
+{
+  "title": "Feature title",
+  "branchName": "feature/short-name",
+  "userStories": [
+    {
+      "id": "US-1",
+      "title": "Short task title",
+      "priority": 1,
+      "passes": false,
+      "acceptance": [
+        "Clear criterion 1",
+        "Clear criterion 2"
+      ],
+      "notes": "Optional extra context"
+    }
+  ]
+}
