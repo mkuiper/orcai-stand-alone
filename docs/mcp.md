@@ -68,14 +68,14 @@ ToolUniverse provides a large catalog of real-world tools and APIs exposed throu
 Install and run the MCP server:
 ```
 pip install tooluniverse
-tooluniverse-mcp
+tooluniverse-smcp
 ```
 
 Then enable in `.opencode/opencode.jsonc`:
 ```
 "tooluniverse": {
   "type": "local",
-  "command": ["tooluniverse-mcp"],
+  "command": ["script/mcp/tooluniverse"],
   "enabled": true
 }
 ```

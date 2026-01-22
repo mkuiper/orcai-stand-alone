@@ -48,7 +48,7 @@
     },
     "tooluniverse": {
       "type": "local",
-      "command": ["tooluniverse-mcp"],
+      "command": ["script/mcp/tooluniverse"],
       "enabled": false
     }
   },
