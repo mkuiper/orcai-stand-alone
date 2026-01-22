@@ -62,6 +62,13 @@ Then enable in `.opencode/opencode.jsonc`:
 }
 ```
 
+## Verify MCP status
+Use the CLI to check connections:
+```
+orcai mcp list
+```
+You should see each configured MCP server and its status (connected/failed/needs auth).
+
 ## References
 - https://github.com/mcp/github/github-mcp-server
 - https://github.com/bio-mcp/bio-mcp-blast

@@ -21,6 +21,7 @@
 - Added AI tooling landscape dynamic doc baseline
 - Added cadence guidance to research workflows
 - Added MCP and skills docs with initial MCP configs and scripts
+- Added MCP status verification note and skills template
 
 ## Known gaps
 - No consolidated Orcai vs opencode doc
