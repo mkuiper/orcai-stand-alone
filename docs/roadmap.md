@@ -20,6 +20,7 @@ This roadmap captures the major themes and milestones for Orcai. It is direction
 - Canonical agent roles: intake, orchestrator, executor, docs
 - Task Brief format and enforcement
 - Spec/PRD creation flow and acceptance criteria gating
+- Optional "Ralph loop" iterative mode for POC/research automation
 
 ### Milestone C: Research Workflows
 - "Research jobs" that run on a schedule or manually

@@ -23,6 +23,7 @@
 - Added MCP and skills docs with initial MCP configs and scripts
 - Added MCP status verification note and skills template
 - Added MCP troubleshooting and a sample mcp-setup skill
+- Captured Ralph-loop mode as a planned feature
 
 ## Known gaps
 - No consolidated Orcai vs opencode doc
