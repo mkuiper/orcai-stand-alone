@@ -33,3 +33,4 @@ packages/opencode/.env.voice
 test-config.ts
 test-keybind.ts
 test-voice-direct.ts
+packages/opencode/experiments/
