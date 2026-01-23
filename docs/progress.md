@@ -29,6 +29,7 @@
 - Implemented /ralph-loop single-iteration command
 - Added /init-orcai bootstrap docs and command
 - Added bootstrap.json template for init-orcai
+- Added PRD/spec templates and /prd command
 
 ## Known gaps
 - No consolidated Orcai vs opencode doc

@@ -17,6 +17,7 @@ This is the actionable backlog. Keep items small and outcome-focused.
 - Add Ralph Loop docs and templates
 - Add /init-orcai bootstrap command
 - Add PRD/spec intake flavors (programs, tasks, research)
+- Add /prd command for PRD/spec drafting
 
 ## Later
 - Add real-time research sweep runner with summaries
