@@ -31,3 +31,6 @@ Use `scripts/openmm_run.py` as the starting template.
 
 ## Other engines
 If the user requests GROMACS/AMBER/CHARMM, provide a high-level plan and ask for engine-specific inputs (topology, force field, solvent model, run length).
+See:
+- `references/gromacs.md`
+- `references/amber.md`
