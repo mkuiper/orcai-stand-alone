@@ -3,9 +3,18 @@
 Use `/init-orcai` to bootstrap a new project with Orcai agents and skills, then generate `AGENTS.md`.
 
 ## Prerequisite
-Set the source repo path:
+Set the source repo path (env or config):
 ```
 export ORCAI_TEMPLATE_REPO=/path/to/orcai
+```
+
+Or create `.opencode/bootstrap.json`:
+```
+{
+  "source": "/path/to/orcai",
+  "agents": true,
+  "skills": true
+}
 ```
 
 ## What it does

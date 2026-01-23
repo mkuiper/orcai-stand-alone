@@ -1,0 +1,5 @@
+{
+  "source": "/path/to/orcai",
+  "agents": true,
+  "skills": true
+}

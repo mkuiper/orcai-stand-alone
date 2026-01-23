@@ -28,6 +28,7 @@
 - Added Ralph Loop CLI draft and progress template
 - Implemented /ralph-loop single-iteration command
 - Added /init-orcai bootstrap docs and command
+- Added bootstrap.json template for init-orcai
 
 ## Known gaps
 - No consolidated Orcai vs opencode doc

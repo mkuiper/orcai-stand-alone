@@ -7,7 +7,7 @@ subtask: true
 Bootstrap this repo using Orcai templates.
 
 Steps:
-1) Determine the source repo path from the environment variable ORCAI_TEMPLATE_REPO.
+1) Determine the source repo path from ORCAI_TEMPLATE_REPO or `.opencode/bootstrap.json` (field: `source`).
    - If missing, ask the user to provide the path.
 2) Verify the source exists and contains `.opencode/agent/` and/or `.opencode/skill/`.
 3) Ensure `.opencode/` exists in this repo.
