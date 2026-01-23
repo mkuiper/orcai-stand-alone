@@ -30,6 +30,7 @@
 - Added /init-orcai bootstrap docs and command
 - Added bootstrap.json template for init-orcai
 - Added PRD/spec templates and /prd command
+- Added software registry docs and initial tool entries
 
 ## Known gaps
 - No consolidated Orcai vs opencode doc

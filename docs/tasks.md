@@ -18,6 +18,7 @@ This is the actionable backlog. Keep items small and outcome-focused.
 - Add /init-orcai bootstrap command
 - Add PRD/spec intake flavors (programs, tasks, research)
 - Add /prd command for PRD/spec drafting
+- Add software registry and upkeep guidance
 
 ## Later
 - Add real-time research sweep runner with summaries

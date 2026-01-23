@@ -25,6 +25,7 @@ Use this skill to run short, reproducible MD simulations with realistic aqueous 
 4. Minimize and equilibrate (0.1–0.5 ns).
 5. Run production in segments with checkpoints.
 6. Write DCD and PSF for VMD compatibility.
+7. Rewrap trajectories (image + center) for clean visualization.
 
 ## OpenMM script
 Use `scripts/openmm_run.py` as the starting template.
