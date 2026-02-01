@@ -238,6 +238,205 @@
       font-size: 0.9rem;
     }
 
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #1a1a1a;
+      border: 1px solid #4a9eff;
+      border-radius: 8px;
+      padding: 2rem;
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-header h2 {
+      color: #fff;
+      margin: 0;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      color: #888;
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+    }
+
+    .close-btn:hover {
+      color: #fff;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      color: #e0e0e0;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      background: #0f0f0f;
+      border: 1px solid #333;
+      color: #e0e0e0;
+      padding: 0.75rem;
+      border-radius: 4px;
+      font-size: 1rem;
+      font-family: inherit;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #4a9eff;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #4a9eff;
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #3a8eef;
+    }
+
+    .btn-secondary {
+      background: #333;
+      color: #e0e0e0;
+    }
+
+    .btn-secondary:hover {
+      background: #444;
+    }
+
+    .btn-danger {
+      background: #ff4a4a;
+      color: #fff;
+    }
+
+    .btn-danger:hover {
+      background: #ef3a3a;
+    }
+
+    .btn-small {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+      justify-content: flex-end;
+    }
+
+    .org-chart-container {
+      position: relative;
+      min-height: 600px;
+    }
+
+    .org-node-visual {
+      position: absolute;
+      background: #2a2a2a;
+      border: 2px solid #4a9eff;
+      border-radius: 8px;
+      padding: 1rem;
+      cursor: move;
+      transition: all 0.2s;
+      min-width: 200px;
+    }
+
+    .org-node-visual.human {
+      border-color: #b84aff;
+    }
+
+    .org-node-visual.dragging {
+      opacity: 0.5;
+      transform: scale(1.05);
+    }
+
+    .org-node-visual:hover {
+      box-shadow: 0 4px 12px rgba(74, 158, 255, 0.3);
+    }
+
+    svg.connections {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    svg.connections line {
+      stroke: #4a9eff;
+      stroke-width: 2;
+    }
+
+    svg.connections line.dotted {
+      stroke-dasharray: 5, 5;
+      stroke: #888;
+    }
+
     @media (max-width: 768px) {
       .grid {
         grid-template-columns: 1fr;
@@ -245,6 +444,15 @@
 
       .stats {
         grid-template-columns: 1fr;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .modal-content {
+        width: 95%;
+        padding: 1.5rem;
       }
     }
   </style>
@@ -260,6 +468,7 @@
       <button class="tab active" data-tab="overview">Overview</button>
       <button class="tab" data-tab="agents">Agents</button>
       <button class="tab" data-tab="org-chart">Org Chart</button>
+      <button class="tab" data-tab="scheduler">Scheduler</button>
       <button class="tab" data-tab="memory">Memory</button>
     </div>
 
@@ -276,12 +485,190 @@
 
     <div id="org-chart" class="tab-content">
       <h2 style="margin-bottom: 1rem; color: #fff;">Organization Structure</h2>
-      <div class="org-chart" id="org-chart-content"></div>
+      <p style="color: #888; margin-bottom: 1rem;">Drag agents to reorganize reporting structure</p>
+      <div class="org-chart-container" id="org-chart-content">
+        <svg class="connections" id="org-connections"></svg>
+      </div>
+    </div>
+
+    <div id="scheduler" class="tab-content">
+      <h2 style="margin-bottom: 1rem; color: #fff;">Operations Scheduler</h2>
+      <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+        <button class="btn btn-primary" onclick="createScheduledOperation()">+ New Operation</button>
+        <button class="btn btn-secondary" onclick="createMeeting()">+ New Meeting</button>
+      </div>
+      <div id="scheduler-content"></div>
     </div>
 
     <div id="memory" class="tab-content">
       <h2 style="margin-bottom: 1rem; color: #fff;">Corporate Memory</h2>
       <div id="memory-content"></div>
+    </div>
+  </div>
+
+  <!-- Edit Agent Modal -->
+  <div id="edit-agent-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Edit Agent</h2>
+        <button class="close-btn" onclick="closeEditModal()">&times;</button>
+      </div>
+      <form id="edit-agent-form" onsubmit="saveAgent(event)">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" id="edit-name" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Role</label>
+            <input type="text" id="edit-role" required>
+          </div>
+          <div class="form-group">
+            <label>Avatar (emoji)</label>
+            <input type="text" id="edit-avatar" maxlength="2">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Type</label>
+            <select id="edit-type" onchange="toggleLLMFields()">
+              <option value="ai">AI Agent</option>
+              <option value="human">Human</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="edit-status">
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="on_leave">On Leave</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="llm-fields">
+          <div class="form-row">
+            <div class="form-group">
+              <label>LLM Provider</label>
+              <select id="edit-llm-provider">
+                <option value="anthropic">Anthropic</option>
+                <option value="openai">OpenAI</option>
+                <option value="google">Google</option>
+                <option value="local">Local</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Model</label>
+              <input type="text" id="edit-llm-model" placeholder="claude-sonnet-4-5">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Temperature</label>
+              <input type="number" id="edit-llm-temperature" min="0" max="2" step="0.1" value="0.7">
+            </div>
+            <div class="form-group">
+              <label>Max Tokens</label>
+              <input type="number" id="edit-llm-max-tokens" value="8192">
+            </div>
+          </div>
+        </div>
+
+        <div id="human-fields" style="display: none;">
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="edit-contact-email" placeholder="agent@example.com">
+          </div>
+          <div class="form-group">
+            <label>Slack Handle</label>
+            <input type="text" id="edit-contact-slack" placeholder="@username">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Team</label>
+          <input type="text" id="edit-team" required>
+        </div>
+
+        <div class="form-group">
+          <label>Reports To (agent ID)</label>
+          <input type="text" id="edit-reports-to" placeholder="Leave empty if CEO/top level">
+        </div>
+
+        <div class="form-group">
+          <label>Responsibilities (one per line)</label>
+          <textarea id="edit-responsibilities"></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+
+        <input type="hidden" id="edit-agent-id">
+      </form>
+    </div>
+  </div>
+
+  <!-- Scheduler Modal -->
+  <div id="scheduler-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="scheduler-modal-title">New Scheduled Operation</h2>
+        <button class="close-btn" onclick="closeSchedulerModal()">&times;</button>
+      </div>
+      <form id="scheduler-form" onsubmit="saveScheduledOperation(event)">
+        <div class="form-group">
+          <label>Operation Name</label>
+          <input type="text" id="sched-name" required placeholder="Daily standup">
+        </div>
+
+        <div class="form-group">
+          <label>Type</label>
+          <select id="sched-type">
+            <option value="meeting">Meeting</option>
+            <option value="task">Automated Task</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Schedule (cron format)</label>
+          <input type="text" id="sched-cron" required placeholder="0 9 * * 1-5">
+          <small style="color: #888;">Examples: "0 9 * * 1-5" (weekdays 9am), "0 0 * * *" (daily midnight)</small>
+        </div>
+
+        <div class="form-group">
+          <label>Assigned Agent(s)</label>
+          <input type="text" id="sched-agents" placeholder="alice, bob, carol">
+          <small style="color: #888;">Comma-separated agent IDs</small>
+        </div>
+
+        <div class="form-group">
+          <label>Description / Agenda</label>
+          <textarea id="sched-description" placeholder="What happens during this operation"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Duration (minutes)</label>
+          <input type="number" id="sched-duration" min="5" value="30">
+        </div>
+
+        <div class="form-group">
+          <label>Output Path</label>
+          <input type="text" id="sched-output" placeholder="meetings/notes/{type}/{date}.md">
+          <small style="color: #888;">Where to save output. Use {date}, {type} for dynamic values</small>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeSchedulerModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Operation</button>
+        </div>
+
+        <input type="hidden" id="sched-id">
+      </form>
     </div>
   </div>
 

@@ -1,11 +1,12 @@
 #!/usr/bin/env bun
 /**
  * OrcAI Organization Dashboard Server
- * Simple HTTP server to serve the dashboard and organization data
+ * HTTP server with full CRUD operations for organization management
  */
 
-import { readdir, readFile } from "fs/promises"
+import { readdir, readFile, writeFile, mkdir } from "fs/promises"
 import { join } from "path"
+import { exists } from "fs"
 
 const PORT = process.env.ORG_DASHBOARD_PORT || 3030
 const ORCAI_ROOT = process.env.ORCAI_ROOT || join(process.cwd(), "../..")
@@ -14,7 +15,7 @@ const ORCAI_DIR = join(ORCAI_ROOT, ".orcai")
 // CORS headers for remote access
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
 }
 
@@ -46,11 +47,12 @@ const server = Bun.serve({
     // API endpoints
     if (url.pathname.startsWith("/api/org")) {
       try {
-        const response = await handleOrgAPI(url.pathname)
+        const response = await handleOrgAPI(req, url.pathname)
         return new Response(JSON.stringify(response, null, 2), {
           headers: { "Content-Type": "application/json", ...corsHeaders },
         })
       } catch (error) {
+        console.error("API Error:", error)
         return new Response(JSON.stringify({ error: String(error) }), {
           status: 500,
           headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -62,19 +64,21 @@ const server = Bun.serve({
   },
 })
 
-async function handleOrgAPI(pathname: string) {
-  // GET /api/org/structure - Get org.json
-  if (pathname === "/api/org/structure") {
+async function handleOrgAPI(req: Request, pathname: string) {
+  const method = req.method
+
+  // GET /api/org/structure
+  if (pathname === "/api/org/structure" && method === "GET") {
     const orgFile = join(ORCAI_DIR, "organization/org.json")
     const content = await readFile(orgFile, "utf-8")
     return JSON.parse(content)
   }
 
-  // GET /api/org/agents - List all agents
-  if (pathname === "/api/org/agents") {
+  // GET /api/org/agents
+  if (pathname === "/api/org/agents" && method === "GET") {
     const agentsDir = join(ORCAI_DIR, "organization/agents")
     const files = await readdir(agentsDir)
-    const agentFiles = files.filter(f => f.endsWith(".json") && !f.startsWith("_"))
+    const agentFiles = files.filter(f => f.endsWith(".json") && !f.startsWith("_") && f !== "human-example.json")
 
     const agents = await Promise.all(
       agentFiles.map(async (file) => {
@@ -86,17 +90,142 @@ async function handleOrgAPI(pathname: string) {
     return agents
   }
 
-  // GET /api/org/agents/:id - Get specific agent
-  const agentMatch = pathname.match(/^\/api\/org\/agents\/([a-z0-9-]+)$/)
-  if (agentMatch) {
-    const agentId = agentMatch[1]
+  // GET /api/org/agents/:id
+  const getAgentMatch = pathname.match(/^\/api\/org\/agents\/([a-z0-9-]+)$/)
+  if (getAgentMatch && method === "GET") {
+    const agentId = getAgentMatch[1]
     const agentFile = join(ORCAI_DIR, `organization/agents/${agentId}.json`)
     const content = await readFile(agentFile, "utf-8")
     return JSON.parse(content)
   }
 
-  // GET /api/org/learning/wins - Get learning outcomes
-  if (pathname === "/api/org/learning/wins") {
+  // PUT /api/org/agents/:id
+  const putAgentMatch = pathname.match(/^\/api\/org\/agents\/([a-z0-9-]+)$/)
+  if (putAgentMatch && method === "PUT") {
+    const agentId = putAgentMatch[1]
+    const agentFile = join(ORCAI_DIR, `organization/agents/${agentId}.json`)
+    const updatedAgent = await req.json()
+
+    // Update timestamp
+    updatedAgent.last_active = new Date().toISOString()
+
+    await writeFile(agentFile, JSON.stringify(updatedAgent, null, 2))
+    return { success: true, agent: updatedAgent }
+  }
+
+  // POST /api/org/update-reporting
+  if (pathname === "/api/org/update-reporting" && method === "POST") {
+    const { childId, newParentId } = await req.json()
+
+    // Update org.json hierarchy
+    const orgFile = join(ORCAI_DIR, "organization/org.json")
+    const orgData = JSON.parse(await readFile(orgFile, "utf-8"))
+
+    // Remove child from old parent
+    for (const [agentId, data] of Object.entries(orgData.hierarchy.structure)) {
+      const structure = data as any
+      if (structure.children?.includes(childId)) {
+        structure.children = structure.children.filter((c: string) => c !== childId)
+      }
+    }
+
+    // Add to new parent
+    if (!orgData.hierarchy.structure[newParentId].children) {
+      orgData.hierarchy.structure[newParentId].children = []
+    }
+    orgData.hierarchy.structure[newParentId].children.push(childId)
+
+    // Update child agent's reports_to
+    const childAgentFile = join(ORCAI_DIR, `organization/agents/${childId}.json`)
+    const childAgent = JSON.parse(await readFile(childAgentFile, "utf-8"))
+    childAgent.org_structure.reports_to = newParentId
+    childAgent.last_active = new Date().toISOString()
+
+    await writeFile(orgFile, JSON.stringify(orgData, null, 2))
+    await writeFile(childAgentFile, JSON.stringify(childAgent, null, 2))
+
+    return { success: true }
+  }
+
+  // GET /api/org/schedule
+  if (pathname === "/api/org/schedule" && method === "GET") {
+    const scheduleFile = join(ORCAI_DIR, "meetings/schedule.json")
+
+    try {
+      const content = await readFile(scheduleFile, "utf-8")
+      const scheduleData = JSON.parse(content)
+
+      // Convert to array format
+      const operations = []
+      if (scheduleData.recurring) {
+        for (const [id, op] of Object.entries(scheduleData.recurring)) {
+          operations.push({ id, ...op })
+        }
+      }
+      return operations
+    } catch (error) {
+      return []
+    }
+  }
+
+  // POST /api/org/schedule
+  if (pathname === "/api/org/schedule" && method === "POST") {
+    const operation = await req.json()
+    const scheduleFile = join(ORCAI_DIR, "meetings/schedule.json")
+
+    // Ensure meetings directory exists
+    await mkdir(join(ORCAI_DIR, "meetings"), { recursive: true })
+
+    let scheduleData
+    try {
+      const content = await readFile(scheduleFile, "utf-8")
+      scheduleData = JSON.parse(content)
+    } catch (error) {
+      scheduleData = { recurring: {}, scheduled_tasks: {} }
+    }
+
+    if (!scheduleData.recurring) scheduleData.recurring = {}
+
+    // Store operation
+    const { id, ...opData } = operation
+    scheduleData.recurring[id] = {
+      name: opData.name,
+      facilitator: opData.agents[0],
+      participants: opData.agents,
+      schedule: {
+        cron: opData.cron,
+        duration_minutes: opData.duration_minutes
+      },
+      agenda_template: opData.description,
+      outputs: [{
+        type: "notes",
+        path: opData.output_path
+      }]
+    }
+
+    await writeFile(scheduleFile, JSON.stringify(scheduleData, null, 2))
+    return { success: true, operation }
+  }
+
+  // DELETE /api/org/schedule/:id
+  const deleteScheduleMatch = pathname.match(/^\/api\/org\/schedule\/([a-z0-9-]+)$/)
+  if (deleteScheduleMatch && method === "DELETE") {
+    const opId = deleteScheduleMatch[1]
+    const scheduleFile = join(ORCAI_DIR, "meetings/schedule.json")
+
+    const content = await readFile(scheduleFile, "utf-8")
+    const scheduleData = JSON.parse(content)
+
+    if (scheduleData.recurring && scheduleData.recurring[opId]) {
+      delete scheduleData.recurring[opId]
+      await writeFile(scheduleFile, JSON.stringify(scheduleData, null, 2))
+    }
+
+    return { success: true }
+  }
+
+  // GET /api/org/learning/wins
+  if (pathname === "/api/org/learning/wins" && method === "GET") {
     const winsDir = join(ORCAI_DIR, "learning/outcomes/wins")
     const files = await readdir(winsDir)
     const mdFiles = files.filter(f => f.endsWith(".md"))
@@ -107,8 +236,8 @@ async function handleOrgAPI(pathname: string) {
     }))
   }
 
-  // GET /api/org/memory/corporate - Get corporate memory
-  if (pathname === "/api/org/memory/corporate") {
+  // GET /api/org/memory/corporate
+  if (pathname === "/api/org/memory/corporate" && method === "GET") {
     const corpDir = join(ORCAI_DIR, "memory/corporate")
 
     const [principles, decisions, knowledge] = await Promise.all([
@@ -124,12 +253,17 @@ async function handleOrgAPI(pathname: string) {
     }
   }
 
-  throw new Error(`Unknown API endpoint: ${pathname}`)
+  throw new Error(`Unknown API endpoint: ${method} ${pathname}`)
 }
 
 console.log(`\n🚀 OrcAI Organization Dashboard`)
 console.log(`📊 Dashboard: http://localhost:${PORT}`)
 console.log(`🔌 API: http://localhost:${PORT}/api/org`)
 console.log(`📁 Data: ${ORCAI_DIR}`)
+console.log(`\n✨ Features:`)
+console.log(`   • Edit agents via UI`)
+console.log(`   • Drag-and-drop org chart`)
+console.log(`   • Schedule operations & meetings`)
+console.log(`   • Visual reporting relationships`)
 console.log(`\n💡 Access remotely: Use ngrok or similar to expose port ${PORT}`)
 console.log(`   Example: ngrok http ${PORT}\n`)
