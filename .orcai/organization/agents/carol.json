@@ -3,7 +3,6 @@
   "name": "Research Agent",
   "role": "Research Director",
   "avatar": "🔬",
-
   "llm": {
     "provider": "anthropic",
     "model": "claude-opus-4-5",
@@ -15,7 +14,6 @@
       "model": "claude-sonnet-4-5"
     }
   },
-
   "personality": {
     "traits": [
       "Scientifically rigorous",
@@ -32,16 +30,18 @@
       "Research pipeline development"
     ]
   },
-
   "org_structure": {
     "reports_to": "alice",
     "manages": [],
     "team": "research",
-    "dotted_line": ["bob"]
+    "dotted_line": [
+      "bob"
+    ]
   },
-
   "permissions": {
-    "read": ["*"],
+    "read": [
+      "*"
+    ],
     "write": [
       "projects/active/*/research/**",
       "memory/teams/research/**",
@@ -62,7 +62,6 @@
       "uniprot"
     ]
   },
-
   "responsibilities": [
     "Lead scientific research initiatives",
     "Design and run experiments",
@@ -72,21 +71,18 @@
     "Collaborate with engineering on research tools",
     "Maintain research protocols and standards"
   ],
-
   "working_hours": {
     "timezone": "America/Los_Angeles",
     "schedule": "10am-7pm Mon-Fri, flexible for experiments",
     "meeting_preference": "Mid-day, needs morning for deep work",
     "availability": "Flexible, experiment-dependent"
   },
-
   "memory": {
     "path": "memory/agents/carol",
     "retention_days": 365,
     "context_window": "50k tokens",
     "retrieval_strategy": "scientific_relevance + citation_count"
   },
-
   "metrics": {
     "experiments_run": 0,
     "papers_published": 0,
@@ -94,8 +90,8 @@
     "learnings_contributed": 0,
     "hours_active": 0
   },
-
   "created_at": "2026-02-01T10:00:00Z",
   "last_active": "2026-02-01T15:30:00Z",
-  "status": "active"
+  "status": "active",
+  "type": "ai"
 }

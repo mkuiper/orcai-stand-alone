@@ -1,0 +1,19 @@
+{
+  "name": "@orcai/org-dashboard",
+  "version": "0.1.0",
+  "description": "OrcAI Organization Dashboard - Web UI for managing AI organizations",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run server.ts",
+    "start": "bun run server.ts"
+  },
+  "bin": {
+    "org-dashboard": "./server.ts"
+  },
+  "keywords": [
+    "orcai",
+    "dashboard",
+    "organization",
+    "ai-agents"
+  ]
+}

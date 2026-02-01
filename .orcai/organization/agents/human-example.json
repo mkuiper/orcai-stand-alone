@@ -1,0 +1,65 @@
+{
+  "id": "mike",
+  "name": "Mike (Human)",
+  "role": "Product Owner",
+  "type": "human",
+  "avatar": "👤",
+
+  "personality": {
+    "traits": [
+      "Strategic thinker",
+      "Hands-on contributor",
+      "Research-focused"
+    ],
+    "communication_style": "Direct and collaborative",
+    "focus_areas": [
+      "Product vision",
+      "Research direction",
+      "Team coordination"
+    ]
+  },
+
+  "org_structure": {
+    "reports_to": null,
+    "manages": ["alice", "bob", "carol"],
+    "team": "executive",
+    "dotted_line": []
+  },
+
+  "permissions": {
+    "read": ["*"],
+    "write": ["*"],
+    "approve": ["*"],
+    "tools": ["*"]
+  },
+
+  "responsibilities": [
+    "Set product vision and priorities",
+    "Guide AI agents on strategic decisions",
+    "Review and approve major changes",
+    "Provide domain expertise",
+    "Final decision maker"
+  ],
+
+  "contact": {
+    "email": "mike@example.com",
+    "slack": "@mike"
+  },
+
+  "working_hours": {
+    "timezone": "America/Los_Angeles",
+    "schedule": "Flexible, checks in daily",
+    "meeting_preference": "Async-first, scheduled for key decisions",
+    "availability": "Generally responsive within 24 hours"
+  },
+
+  "metrics": {
+    "decisions_made": 0,
+    "reviews_completed": 0,
+    "meetings_attended": 0
+  },
+
+  "created_at": "2026-02-01T10:00:00Z",
+  "last_active": "2026-02-01T16:00:00Z",
+  "status": "active"
+}

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OrcAI Organization Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+      background: #0f0f0f;
+      color: #e0e0e0;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    header {
+      margin-bottom: 3rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid #333;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      color: #fff;
+    }
+
+    .subtitle {
+      color: #888;
+      font-size: 1.1rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid #333;
+    }
+
+    .tab {
+      padding: 0.75rem 1.5rem;
+      background: none;
+      border: none;
+      color: #888;
+      cursor: pointer;
+      font-size: 1rem;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .tab:hover {
+      color: #e0e0e0;
+    }
+
+    .tab.active {
+      color: #fff;
+      border-bottom-color: #4a9eff;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .card {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 1.5rem;
+      transition: all 0.2s;
+    }
+
+    .card:hover {
+      border-color: #4a9eff;
+      transform: translateY(-2px);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .avatar {
+      font-size: 2.5rem;
+    }
+
+    .card-title {
+      flex: 1;
+    }
+
+    .card-title h3 {
+      font-size: 1.25rem;
+      margin-bottom: 0.25rem;
+      color: #fff;
+    }
+
+    .card-title .role {
+      color: #888;
+      font-size: 0.9rem;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .badge.ai {
+      background: #1a3a5a;
+      color: #4a9eff;
+    }
+
+    .badge.human {
+      background: #3a1a5a;
+      color: #b84aff;
+    }
+
+    .badge.active {
+      background: #1a4a1a;
+      color: #4aff4a;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #2a2a2a;
+      font-size: 0.9rem;
+    }
+
+    .info-row:last-child {
+      border-bottom: none;
+    }
+
+    .info-label {
+      color: #888;
+    }
+
+    .info-value {
+      color: #e0e0e0;
+      text-align: right;
+    }
+
+    .org-chart {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 2rem;
+      overflow-x: auto;
+    }
+
+    .org-node {
+      background: #2a2a2a;
+      border: 2px solid #4a9eff;
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1rem auto;
+      text-align: center;
+      max-width: 250px;
+    }
+
+    .org-node.human {
+      border-color: #b84aff;
+    }
+
+    .org-children {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 3rem;
+      color: #888;
+    }
+
+    .error {
+      background: #4a1a1a;
+      border: 1px solid #ff4a4a;
+      border-radius: 8px;
+      padding: 1.5rem;
+      color: #ff8a8a;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #4a9eff;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      color: #888;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🤖 OrcAI Organization Dashboard</h1>
+      <p class="subtitle">AI-Powered Organization Management</p>
+    </header>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="overview">Overview</button>
+      <button class="tab" data-tab="agents">Agents</button>
+      <button class="tab" data-tab="org-chart">Org Chart</button>
+      <button class="tab" data-tab="memory">Memory</button>
+    </div>
+
+    <div id="overview" class="tab-content active">
+      <div class="stats" id="stats"></div>
+      <h2 style="margin-bottom: 1rem; color: #fff;">Recent Activity</h2>
+      <div id="activity"></div>
+    </div>
+
+    <div id="agents" class="tab-content">
+      <h2 style="margin-bottom: 1rem; color: #fff;">All Agents</h2>
+      <div class="grid" id="agents-grid"></div>
+    </div>
+
+    <div id="org-chart" class="tab-content">
+      <h2 style="margin-bottom: 1rem; color: #fff;">Organization Structure</h2>
+      <div class="org-chart" id="org-chart-content"></div>
+    </div>
+
+    <div id="memory" class="tab-content">
+      <h2 style="margin-bottom: 1rem; color: #fff;">Corporate Memory</h2>
+      <div id="memory-content"></div>
+    </div>
+  </div>
+
+  <script src="./dashboard.js"></script>
+</body>
+</html>

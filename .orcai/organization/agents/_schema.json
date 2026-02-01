@@ -1,0 +1,178 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Agent Definition Schema",
+  "description": "Schema for defining AI and human agents in the organization",
+  "type": "object",
+  "required": ["id", "name", "role", "type"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "Unique identifier (lowercase, alphanumeric, hyphens)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Display name (can be customized by user)"
+    },
+    "role": {
+      "type": "string",
+      "description": "Job title or role in organization"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["ai", "human"],
+      "description": "Agent type: AI or human"
+    },
+    "avatar": {
+      "type": "string",
+      "description": "Emoji or icon representing the agent"
+    },
+    "llm": {
+      "type": "object",
+      "description": "LLM configuration (required for AI agents, not applicable for humans)",
+      "properties": {
+        "provider": {
+          "type": "string",
+          "enum": ["anthropic", "openai", "google", "local"]
+        },
+        "model": {
+          "type": "string"
+        },
+        "reasoning": {
+          "type": "string",
+          "description": "Why this model was chosen"
+        },
+        "temperature": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 2
+        },
+        "max_tokens": {
+          "type": "integer"
+        },
+        "fallback": {
+          "type": "object",
+          "properties": {
+            "provider": { "type": "string" },
+            "model": { "type": "string" }
+          }
+        }
+      }
+    },
+    "personality": {
+      "type": "object",
+      "description": "For AI agents: personality traits. For humans: work style notes",
+      "properties": {
+        "traits": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "communication_style": {
+          "type": "string"
+        },
+        "decision_making": {
+          "type": "string"
+        },
+        "focus_areas": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "org_structure": {
+      "type": "object",
+      "required": ["team"],
+      "properties": {
+        "reports_to": {
+          "type": ["string", "null"],
+          "description": "Agent ID of manager"
+        },
+        "manages": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Array of agent IDs this person manages"
+        },
+        "team": {
+          "type": "string",
+          "description": "Primary team membership"
+        },
+        "dotted_line": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Dotted-line reporting relationships"
+        }
+      }
+    },
+    "permissions": {
+      "type": "object",
+      "description": "Access control for files and tools",
+      "properties": {
+        "read": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "write": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "approve": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "tools": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "responsibilities": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "contact": {
+      "type": "object",
+      "description": "Contact info for human agents",
+      "properties": {
+        "email": { "type": "string" },
+        "slack": { "type": "string" },
+        "phone": { "type": "string" }
+      }
+    },
+    "working_hours": {
+      "type": "object",
+      "properties": {
+        "timezone": { "type": "string" },
+        "schedule": { "type": "string" },
+        "meeting_preference": { "type": "string" },
+        "availability": { "type": "string" }
+      }
+    },
+    "memory": {
+      "type": "object",
+      "description": "Memory configuration (for AI agents)",
+      "properties": {
+        "path": { "type": "string" },
+        "retention_days": { "type": "integer" },
+        "context_window": { "type": "string" },
+        "retrieval_strategy": { "type": "string" }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "description": "Activity metrics"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_active": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["active", "inactive", "on_leave"],
+      "default": "active"
+    }
+  }
+}
