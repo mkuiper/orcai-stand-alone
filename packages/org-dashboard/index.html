@@ -389,9 +389,19 @@
       justify-content: flex-end;
     }
 
-    .org-chart-container {
+    .org-chart-canvas {
       position: relative;
-      min-height: 600px;
+      min-height: 800px;
+      height: 80vh;
+      background: #0a0a0a;
+      border: 2px solid #333;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: default;
+    }
+
+    .org-chart-canvas.connection-mode {
+      cursor: crosshair;
     }
 
     .org-node-visual {
@@ -410,12 +420,50 @@
     }
 
     .org-node-visual.dragging {
-      opacity: 0.5;
+      opacity: 0.7;
       transform: scale(1.05);
+      z-index: 1000;
     }
 
     .org-node-visual:hover {
       box-shadow: 0 4px 12px rgba(74, 158, 255, 0.3);
+    }
+
+    .org-node-visual.selected {
+      box-shadow: 0 0 0 3px #4aff4a;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 3px #4aff4a; }
+      50% { box-shadow: 0 0 0 6px rgba(74, 255, 74, 0.5); }
+    }
+
+    .org-node-visual .delete-btn {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      width: 24px;
+      height: 24px;
+      background: #ff4a4a;
+      border: none;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+
+    .org-node-visual:hover .delete-btn {
+      display: flex;
+    }
+
+    .org-node-visual .delete-btn:hover {
+      background: #ff2a2a;
+      transform: scale(1.1);
     }
 
     svg.connections {
@@ -430,11 +478,25 @@
     svg.connections line {
       stroke: #4a9eff;
       stroke-width: 2;
+      cursor: pointer;
+    }
+
+    svg.connections line:hover {
+      stroke: #ff4a4a;
+      stroke-width: 3;
     }
 
     svg.connections line.dotted {
       stroke-dasharray: 5, 5;
       stroke: #888;
+    }
+
+    svg.connections line.dotted:hover {
+      stroke: #ff8a8a;
+    }
+
+    svg.connections marker {
+      fill: #4a9eff;
     }
 
     @media (max-width: 768px) {
@@ -484,9 +546,19 @@
     </div>
 
     <div id="org-chart" class="tab-content">
-      <h2 style="margin-bottom: 1rem; color: #fff;">Organization Structure</h2>
-      <p style="color: #888; margin-bottom: 1rem;">Drag agents to reorganize reporting structure</p>
-      <div class="org-chart-container" id="org-chart-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <div>
+          <h2 style="margin: 0; color: #fff;">Organization Structure</h2>
+          <p style="color: #888; margin: 0.5rem 0 0 0;">Drag agents anywhere • Click two agents to connect them</p>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+          <button class="btn btn-secondary btn-small" onclick="toggleConnectionMode()">
+            <span id="connection-mode-label">🔗 Connect Mode: OFF</span>
+          </button>
+          <button class="btn btn-primary" onclick="createNewAgent()">+ New Agent</button>
+        </div>
+      </div>
+      <div class="org-chart-canvas" id="org-chart-content">
         <svg class="connections" id="org-connections"></svg>
       </div>
     </div>
@@ -503,6 +575,82 @@
     <div id="memory" class="tab-content">
       <h2 style="margin-bottom: 1rem; color: #fff;">Corporate Memory</h2>
       <div id="memory-content"></div>
+    </div>
+  </div>
+
+  <!-- Create Agent Modal -->
+  <div id="create-agent-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Create New Agent</h2>
+        <button class="close-btn" onclick="closeCreateModal()">&times;</button>
+      </div>
+      <form id="create-agent-form" onsubmit="saveNewAgent(event)">
+        <div class="form-group">
+          <label>Name *</label>
+          <input type="text" id="create-name" required placeholder="e.g., Sarah Chen">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Role *</label>
+            <input type="text" id="create-role" required placeholder="e.g., Data Scientist">
+          </div>
+          <div class="form-group">
+            <label>Avatar (emoji)</label>
+            <input type="text" id="create-avatar" maxlength="2" placeholder="📊">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Type *</label>
+            <select id="create-type" onchange="toggleCreateLLMFields()">
+              <option value="ai">AI Agent</option>
+              <option value="human">Human</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Team *</label>
+            <input type="text" id="create-team" required placeholder="e.g., engineering">
+          </div>
+        </div>
+
+        <div id="create-llm-fields">
+          <div class="form-row">
+            <div class="form-group">
+              <label>LLM Provider</label>
+              <select id="create-llm-provider">
+                <option value="anthropic">Anthropic</option>
+                <option value="openai">OpenAI</option>
+                <option value="google">Google</option>
+                <option value="local">Local</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Model</label>
+              <input type="text" id="create-llm-model" placeholder="claude-sonnet-4-5">
+            </div>
+          </div>
+        </div>
+
+        <div id="create-human-fields" style="display: none;">
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="create-contact-email" placeholder="agent@example.com">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Reports To (agent ID)</label>
+          <input type="text" id="create-reports-to" placeholder="Leave empty if top level">
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeCreateModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Agent</button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -673,5 +821,6 @@
   </div>
 
   <script src="./dashboard.js"></script>
+  <script src="./canvas-chart.js"></script>
 </body>
 </html>

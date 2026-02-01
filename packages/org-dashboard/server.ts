@@ -44,6 +44,13 @@ const server = Bun.serve({
       })
     }
 
+    if (url.pathname === "/canvas-chart.js") {
+      const js = await Bun.file(join(import.meta.dir, "canvas-chart.js")).text()
+      return new Response(js, {
+        headers: { "Content-Type": "application/javascript", ...corsHeaders },
+      })
+    }
+
     // API endpoints
     if (url.pathname.startsWith("/api/org")) {
       try {
@@ -99,6 +106,49 @@ async function handleOrgAPI(req: Request, pathname: string) {
     return JSON.parse(content)
   }
 
+  // POST /api/org/agents - Create new agent
+  if (pathname === "/api/org/agents" && method === "POST") {
+    const newAgent = await req.json()
+    const agentFile = join(ORCAI_DIR, `organization/agents/${newAgent.id}.json`)
+
+    // Check if agent already exists
+    try {
+      await readFile(agentFile)
+      throw new Error("Agent with this ID already exists")
+    } catch (error) {
+      // Agent doesn't exist, continue
+    }
+
+    // Save agent file
+    await writeFile(agentFile, JSON.stringify(newAgent, null, 2))
+
+    // Update org.json hierarchy
+    const orgFile = join(ORCAI_DIR, "organization/org.json")
+    const orgData = JSON.parse(await readFile(orgFile, "utf-8"))
+
+    // Add to hierarchy
+    orgData.hierarchy.structure[newAgent.id] = {
+      children: [],
+      team: newAgent.org_structure.team
+    }
+
+    // If has a manager, add to their children
+    if (newAgent.org_structure.reports_to) {
+      if (!orgData.hierarchy.structure[newAgent.org_structure.reports_to].children) {
+        orgData.hierarchy.structure[newAgent.org_structure.reports_to].children = []
+      }
+      orgData.hierarchy.structure[newAgent.org_structure.reports_to].children.push(newAgent.id)
+    }
+
+    // Update metadata
+    orgData.metadata.total_agents = (orgData.metadata.total_agents || 0) + 1
+    orgData.metadata.last_updated = new Date().toISOString()
+
+    await writeFile(orgFile, JSON.stringify(orgData, null, 2))
+
+    return { success: true, agent: newAgent }
+  }
+
   // PUT /api/org/agents/:id
   const putAgentMatch = pathname.match(/^\/api\/org\/agents\/([a-z0-9-]+)$/)
   if (putAgentMatch && method === "PUT") {
@@ -111,6 +161,76 @@ async function handleOrgAPI(req: Request, pathname: string) {
 
     await writeFile(agentFile, JSON.stringify(updatedAgent, null, 2))
     return { success: true, agent: updatedAgent }
+  }
+
+  // DELETE /api/org/agents/:id
+  const deleteAgentMatch = pathname.match(/^\/api\/org\/agents\/([a-z0-9-]+)$/)
+  if (deleteAgentMatch && method === "DELETE") {
+    const agentId = deleteAgentMatch[1]
+    const agentFile = join(ORCAI_DIR, `organization/agents/${agentId}.json`)
+
+    // Remove from org.json
+    const orgFile = join(ORCAI_DIR, "organization/org.json")
+    const orgData = JSON.parse(await readFile(orgFile, "utf-8"))
+
+    // Remove from hierarchy
+    delete orgData.hierarchy.structure[agentId]
+
+    // Remove from any parent's children array
+    for (const [id, data] of Object.entries(orgData.hierarchy.structure)) {
+      const structure = data as any
+      if (structure.children) {
+        structure.children = structure.children.filter((c: string) => c !== agentId)
+      }
+    }
+
+    await writeFile(orgFile, JSON.stringify(orgData, null, 2))
+
+    // Delete agent file
+    await Bun.write(agentFile, "")
+    // Note: Bun doesn't have fs.unlink in promises, using write empty for now
+
+    return { success: true }
+  }
+
+  // POST /api/org/create-connection
+  if (pathname === "/api/org/create-connection" && method === "POST") {
+    const { from, to, type } = await req.json()
+
+    const orgFile = join(ORCAI_DIR, "organization/org.json")
+    const orgData = JSON.parse(await readFile(orgFile, "utf-8"))
+
+    if (type === 'direct') {
+      // Add as direct report
+      if (!orgData.hierarchy.structure[from].children) {
+        orgData.hierarchy.structure[from].children = []
+      }
+      if (!orgData.hierarchy.structure[from].children.includes(to)) {
+        orgData.hierarchy.structure[from].children.push(to)
+      }
+
+      // Update child's reports_to
+      const childFile = join(ORCAI_DIR, `organization/agents/${to}.json`)
+      const childAgent = JSON.parse(await readFile(childFile, "utf-8"))
+      childAgent.org_structure.reports_to = from
+      await writeFile(childFile, JSON.stringify(childAgent, null, 2))
+    } else {
+      // Add as dotted line
+      const fromFile = join(ORCAI_DIR, `organization/agents/${from}.json`)
+      const fromAgent = JSON.parse(await readFile(fromFile, "utf-8"))
+
+      if (!fromAgent.org_structure.dotted_line) {
+        fromAgent.org_structure.dotted_line = []
+      }
+      if (!fromAgent.org_structure.dotted_line.includes(to)) {
+        fromAgent.org_structure.dotted_line.push(to)
+      }
+
+      await writeFile(fromFile, JSON.stringify(fromAgent, null, 2))
+    }
+
+    await writeFile(orgFile, JSON.stringify(orgData, null, 2))
+    return { success: true }
   }
 
   // POST /api/org/update-reporting
