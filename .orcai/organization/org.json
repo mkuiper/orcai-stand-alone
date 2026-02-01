@@ -1,0 +1,78 @@
+{
+  "name": "OrcAI Research Lab",
+  "mission": "Accelerate scientific discovery through AI-powered research and development",
+  "founded": "2026-02-01",
+  "version": "0.1.0",
+
+  "hierarchy": {
+    "type": "tree",
+    "root": "alice",
+    "structure": {
+      "alice": {
+        "children": ["bob", "carol", "emma"],
+        "team": "executive"
+      },
+      "bob": {
+        "children": ["david"],
+        "team": "executive"
+      },
+      "carol": {
+        "children": [],
+        "team": "research"
+      },
+      "david": {
+        "children": [],
+        "team": "engineering"
+      },
+      "emma": {
+        "children": [],
+        "team": "executive"
+      }
+    }
+  },
+
+  "teams": {
+    "executive": {
+      "name": "Executive Team",
+      "members": ["alice", "bob", "emma"],
+      "purpose": "Strategic direction and resource allocation",
+      "meeting_cadence": "Weekly Monday 9am PT"
+    },
+    "research": {
+      "name": "Research Team",
+      "lead": "carol",
+      "members": ["carol"],
+      "purpose": "Scientific research and experimentation",
+      "meeting_cadence": "Daily standup 10am PT, Weekly review Friday 2pm PT"
+    },
+    "engineering": {
+      "name": "Engineering Team",
+      "lead": "david",
+      "members": ["bob", "david"],
+      "purpose": "Software development and infrastructure",
+      "meeting_cadence": "Daily standup 9:30am PT"
+    }
+  },
+
+  "principles": [
+    "Data-driven decisions",
+    "Transparent communication",
+    "Continuous learning and improvement",
+    "Rapid experimentation",
+    "Document everything",
+    "Fail fast, learn faster"
+  ],
+
+  "current_focus": [
+    "Building organization OS architecture",
+    "Establishing agent workflows",
+    "Creating corporate memory systems"
+  ],
+
+  "metadata": {
+    "created_at": "2026-02-01T10:00:00Z",
+    "last_updated": "2026-02-01T10:00:00Z",
+    "total_agents": 5,
+    "active_projects": 1
+  }
+}
