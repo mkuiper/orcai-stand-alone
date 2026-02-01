@@ -1,27 +1,27 @@
 {
   "id": "mike",
-  "name": "Mike (Human)",
-  "role": "Product Owner",
+  "name": "Your Name",
+  "role": "Chief Executive Officer",
   "type": "human",
-  "avatar": "👤",
+  "avatar": "👔",
 
   "personality": {
     "traits": [
       "Strategic thinker",
-      "Hands-on contributor",
-      "Research-focused"
+      "Hands-on leader",
+      "Visionary"
     ],
     "communication_style": "Direct and collaborative",
     "focus_areas": [
-      "Product vision",
-      "Research direction",
-      "Team coordination"
+      "Strategic direction",
+      "Team leadership",
+      "Final decisions"
     ]
   },
 
   "org_structure": {
     "reports_to": null,
-    "manages": ["alice", "bob", "carol"],
+    "manages": ["alice", "bob", "carol", "emma"],
     "team": "executive",
     "dotted_line": []
   },
@@ -34,23 +34,22 @@
   },
 
   "responsibilities": [
-    "Set product vision and priorities",
+    "Set organizational vision and strategy",
     "Guide AI agents on strategic decisions",
     "Review and approve major changes",
     "Provide domain expertise",
-    "Final decision maker"
+    "Final decision maker for all critical matters"
   ],
 
   "contact": {
-    "email": "mike@example.com",
-    "slack": "@mike"
+    "email": "you@example.com"
   },
 
   "working_hours": {
     "timezone": "America/Los_Angeles",
-    "schedule": "Flexible, checks in daily",
-    "meeting_preference": "Async-first, scheduled for key decisions",
-    "availability": "Generally responsive within 24 hours"
+    "schedule": "Flexible",
+    "meeting_preference": "As needed",
+    "availability": "Generally responsive"
   },
 
   "metrics": {

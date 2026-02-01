@@ -6,10 +6,14 @@
 
   "hierarchy": {
     "type": "tree",
-    "root": "alice",
+    "root": "mike",
     "structure": {
+      "mike": {
+        "children": ["alice", "bob", "carol", "emma"],
+        "team": "executive"
+      },
       "alice": {
-        "children": ["bob", "carol", "emma"],
+        "children": [],
         "team": "executive"
       },
       "bob": {
@@ -34,7 +38,7 @@
   "teams": {
     "executive": {
       "name": "Executive Team",
-      "members": ["alice", "bob", "emma"],
+      "members": ["mike", "alice", "bob", "emma"],
       "purpose": "Strategic direction and resource allocation",
       "meeting_cadence": "Weekly Monday 9am PT"
     },
@@ -72,7 +76,7 @@
   "metadata": {
     "created_at": "2026-02-01T10:00:00Z",
     "last_updated": "2026-02-01T10:00:00Z",
-    "total_agents": 5,
+    "total_agents": 6,
     "active_projects": 1
   }
 }

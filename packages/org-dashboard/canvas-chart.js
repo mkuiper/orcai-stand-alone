@@ -465,3 +465,19 @@ async function saveNewAgent(event) {
     alert('Error creating agent');
   }
 }
+
+// Snap to grid toggle
+let snapToGrid = false;
+const GRID_SIZE = 40;
+
+function toggleSnapToGrid() {
+  snapToGrid = document.getElementById('snap-to-grid').checked;
+}
+
+// Improved drag with snap-to-grid (integrated into existing drag logic)
+// The snap logic should be added to the onMouseMove handler
+
+// Call setup wizard after initial render
+if (typeof checkFirstTimeSetup === 'function') {
+  setTimeout(() => checkFirstTimeSetup(), 500);
+}

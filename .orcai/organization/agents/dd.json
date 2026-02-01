@@ -1,0 +1,42 @@
+{
+  "id": "dd",
+  "name": "dd",
+  "role": "researcher",
+  "avatar": "👤",
+  "type": "ai",
+  "status": "active",
+  "org_structure": {
+    "reports_to": "CTO",
+    "manages": [],
+    "team": "eng",
+    "dotted_line": []
+  },
+  "responsibilities": [],
+  "created_at": "2026-02-01T10:21:53.893Z",
+  "last_active": "2026-02-01T10:21:53.893Z",
+  "llm": {
+    "provider": "anthropic",
+    "model": "claude-sonnet-4-5",
+    "temperature": 0.7,
+    "max_tokens": 8192,
+    "reasoning": "Default configuration"
+  },
+  "personality": {
+    "traits": [],
+    "communication_style": "",
+    "decision_making": "",
+    "focus_areas": []
+  },
+  "memory": {
+    "path": "memory/agents/dd",
+    "retention_days": 180,
+    "context_window": "20k tokens",
+    "retrieval_strategy": "semantic + recency"
+  },
+  "metrics": {
+    "decisions_made": 0,
+    "meetings_attended": 0,
+    "learnings_contributed": 0,
+    "hours_active": 0
+  }
+}
